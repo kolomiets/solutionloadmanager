@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.Serialization;
+using System.Drawing;
 
 namespace EMCCaptiva.SolutionLoadManager
 {
@@ -26,6 +27,8 @@ namespace EMCCaptiva.SolutionLoadManager
             Priority = priority;
             Parent = parent;
         }
+
+        public Bitmap Icon { get; set; }
 
         public String Name { get; private set; }
 

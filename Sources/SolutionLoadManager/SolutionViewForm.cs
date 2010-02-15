@@ -1,11 +1,31 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Collections;
 
 namespace EMCCaptiva.SolutionLoadManager
 {
     public partial class SolutionViewForm : Form
     {
+        // Create a node sorter that implements the IComparer interface.
+        private class NodeSorter : IComparer
+        {
+            // Compare the length of the strings, or the strings
+            // themselves, if they are the same length.
+            public int Compare(object x, object y)
+            {
+                TreeNode tx = x as TreeNode;
+                TreeNode ty = y as TreeNode;
+
+                if (0 == tx.GetNodeCount(false) && 0 != ty.GetNodeCount(false))
+                    return 1;
+                else if (0 != tx.GetNodeCount(false) && 0 == ty.GetNodeCount(false))
+                    return -1;
+                else
+                    return string.Compare(tx.Text, ty.Text);
+            }
+        }        
+        
         private static readonly Color DemandLoadColor = Color.FromArgb(255, 192, 192);
         private static readonly Color BackgroundLoadColor = Color.FromArgb(255, 224, 192);
         private static readonly Color LoadIfNeededColor = Color.FromArgb(255, 255, 192);
@@ -14,6 +34,7 @@ namespace EMCCaptiva.SolutionLoadManager
         public SolutionViewForm()
         {
             InitializeComponent();
+            treeView1.TreeViewNodeSorter = new NodeSorter();
         }
 
         public ProjectInfo RootProject
@@ -23,6 +44,7 @@ namespace EMCCaptiva.SolutionLoadManager
 
         private void UpdateTree(ProjectInfo info)
         {
+            treeView1.BeginUpdate();
             treeView1.Nodes.Clear();
             if (null != info)
             {
@@ -32,20 +54,32 @@ namespace EMCCaptiva.SolutionLoadManager
 
                 rootNode.Expand();
             }
+            treeView1.EndUpdate();
         }
 
-        private static TreeNode CreateTreeNode(ProjectInfo info)
+        private TreeNode CreateTreeNode(ProjectInfo info)
         {
-            var node = new TreeNode(info.Name) {Tag = info, BackColor = GetPriorityColor(info.Priority)};
+            var node = new TreeNode(info.Name) {Tag = info};
             foreach (var child in info.Children)
                 node.Nodes.Add(CreateTreeNode(child));
 
+            // Show load priory only for projects
+            if (0 == node.GetNodeCount(false))
+                node.BackColor = GetPriorityColor(info);
+
+            // Assign project icon
+            if (null != info.Icon)
+            {
+                projectIcons.Images.Add(info.Icon);
+                node.ImageIndex = node.SelectedImageIndex = projectIcons.Images.Count - 1;
+            }
+            
             return node;
         }
 
-        private static Color GetPriorityColor(LoadPriority loadPriority)
+        private static Color GetPriorityColor(ProjectInfo info)
         {
-            switch (loadPriority)
+            switch (info.Priority)
             {
                 case LoadPriority.DemandLoad:
                     return DemandLoadColor;
@@ -81,7 +115,9 @@ namespace EMCCaptiva.SolutionLoadManager
                     info.Priority = priority;
                     OnPriorityChanged(new PriorityChangedEventArgs(info));
 
-                    n.BackColor = GetPriorityColor(priority);
+                    // Show load priory only for projects
+                    if (0 == n.GetNodeCount(false))
+                        n.BackColor = GetPriorityColor(info);
                 }
             });
         }
@@ -157,6 +193,8 @@ namespace EMCCaptiva.SolutionLoadManager
             OnReloadRequested(EventArgs.Empty);
         }
 
+        #region Events
+
         public event EventHandler<PriorityChangedEventArgs> PriorityChanged;
 
         private void OnPriorityChanged(PriorityChangedEventArgs e)
@@ -183,6 +221,8 @@ namespace EMCCaptiva.SolutionLoadManager
             if (null != handler)
                 handler(this, e);
         }
+
+        #endregion
     }
 
     public class PriorityChangedEventArgs : EventArgs
