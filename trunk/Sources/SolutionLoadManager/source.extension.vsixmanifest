@@ -3,10 +3,10 @@
   <Identifier Id="2c8b59e2-48fb-4629-896f-4a550925e24c">
     <Name>SolutionLoadManager</Name>
     <Author>Kolomiets Dmitry</Author>
-    <Version>0.1.1</Version>
-    <Description xml:space="preserve">Information about my package</Description>
+    <Version>0.1.2</Version>
+    <Description xml:space="preserve">Extension provides access to load priority settings for solution projects. Each project can be loaded immediately, in background, only if needed, or explicitly.</Description>
     <Locale>1033</Locale>
-    <PreviewImage>Capture.PNG</PreviewImage>
+    <PreviewImage>Preview.PNG</PreviewImage>
     <InstalledByMsi>false</InstalledByMsi>
     <SupportedProducts>
       <VisualStudio Version="10.0">
