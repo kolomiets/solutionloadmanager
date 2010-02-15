@@ -12,6 +12,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using EnvDTE;
 using System.IO;
+using System.Windows.Forms;
+using System.Drawing;
 
 namespace EMCCaptiva.SolutionLoadManager
 {
@@ -61,6 +63,8 @@ namespace EMCCaptiva.SolutionLoadManager
             Trace.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
             AddOptionKey(MyOptionKey);
         }
+
+        #region Load/Save Settings
 
         protected override void OnLoadOptions(string key, Stream stream)
         {
@@ -114,8 +118,8 @@ namespace EMCCaptiva.SolutionLoadManager
             }
         }
 
-        /////////////////////////////////////////////////////////////////////////////
-        // Overriden Package Implementation
+        #endregion
+
         #region Package Members
 
         /// <summary>
@@ -137,11 +141,12 @@ namespace EMCCaptiva.SolutionLoadManager
                 m_LoadManagerMenuItem.Visible = false;
                 mcs.AddCommand(m_LoadManagerMenuItem);
 
-                // Create the command for the menu item.
+                // Create the command for the context menu item.
                 CommandID contextMenuCommandID = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManagerContext);
                 mcs.AddCommand(new MenuCommand(MenuItemCallback, contextMenuCommandID));
             }
             
+            // Activate solution load manager
             IVsSolution solution = GetService(typeof(SVsSolution)) as IVsSolution;
             if (null != solution)
             {
@@ -152,8 +157,8 @@ namespace EMCCaptiva.SolutionLoadManager
                 if (this != selectedLoadManager)
                     solution.SetProperty((int)__VSPROPID4.VSPROPID_ActiveSolutionLoadManager, this);
             }
-            
         }
+
         #endregion
 
         private void UpdateProjectLoadPriority(ProjectInfo project)
@@ -191,11 +196,7 @@ namespace EMCCaptiva.SolutionLoadManager
             {         
                 IVsHierarchy solutionHierarchy = solution as IVsHierarchy;
                 if (null != solutionHierarchy)
-                {
-                    OutputCommandString("\n\nTraverse All Items Recursively:\n");
                     EnumHierarchyItems(solutionHierarchy, VSConstants.VSITEMID_ROOT, 0, true, false);
-                    
-                }
             }
             return m_RootProject;
         }
@@ -234,6 +235,8 @@ namespace EMCCaptiva.SolutionLoadManager
             form.ShowDialog();
             return;
         }
+
+        #region Enumerate Projects Hierarchy
 
         /// <summary>
         /// Enumerates over the hierarchy items for the given hierarchy traversing into nested hierarchies.
@@ -275,8 +278,7 @@ namespace EMCCaptiva.SolutionLoadManager
             {
                 object pVar;
 
-                // Display name and type of the node in the Output Window
-                DisplayHierarchyNode(hierarchy, itemid, recursionLevel);
+                ProcessHierarchyNode(hierarchy, itemid, recursionLevel);
 
                 hr = hierarchy.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_TypeName, out pVar);
                 if (String.IsNullOrEmpty((string)pVar))
@@ -292,12 +294,9 @@ namespace EMCCaptiva.SolutionLoadManager
                     // Its implementation _FirstVisibleChild is correct however, and given that there is
                     // not a feature to hide a SolutionFolder or a Project, thus _FirstVisibleChild is 
                     // expected to return the identical results as _FirstChild.
-                    hr = hierarchy.GetProperty(itemid,
-                                               ((visibleNodesOnly || (hierIsSolution && recursionLevel == 1)
-                                                     ?
-                                                         (int)__VSHPROPID.VSHPROPID_FirstVisibleChild
-                                                     : (int)__VSHPROPID.VSHPROPID_FirstChild)),
-                                               out pVar);
+                    hr = hierarchy.GetProperty(itemid, ((visibleNodesOnly || (hierIsSolution && recursionLevel == 1)
+                                                        ? (int)__VSHPROPID.VSHPROPID_FirstVisibleChild
+                                                        : (int)__VSHPROPID.VSHPROPID_FirstChild)), out pVar);
                     Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(hr);
                     if (VSConstants.S_OK == hr)
                     {
@@ -317,12 +316,9 @@ namespace EMCCaptiva.SolutionLoadManager
                             // Its implementation   _NextVisibleSibling is correct however, and given that there is
                             // not a feature to hide a SolutionFolder or a Project, thus _NextVisibleSibling is 
                             // expected to return the identical results as _NextSibling.
-                            hr = hierarchy.GetProperty(childId,
-                                                       ((visibleNodesOnly || (hierIsSolution && recursionLevel == 1))
-                                                            ?
-                                                                (int)__VSHPROPID.VSHPROPID_NextVisibleSibling
-                                                            : (int)__VSHPROPID.VSHPROPID_NextSibling),
-                                                       out pVar);
+                            hr = hierarchy.GetProperty(childId, ((visibleNodesOnly || (hierIsSolution && recursionLevel == 1))
+                                                                 ? (int)__VSHPROPID.VSHPROPID_NextVisibleSibling
+                                                                 : (int)__VSHPROPID.VSHPROPID_NextSibling), out pVar);
                             if (VSConstants.S_OK == hr)
                             {
                                 childId = GetItemId(pVar);
@@ -340,31 +336,27 @@ namespace EMCCaptiva.SolutionLoadManager
             }
         }
 
-        /// <summary>
-        /// This function diplays the name of the Hierarchy node. This function is passed to the 
-        /// Hierarchy enumeration routines to process the current node.
-        /// </summary>
-        /// <param name="hierarchy">Hierarchy of the current node</param>
-        /// <param name="itemid">Itemid of the current node</param>
-        /// <param name="recursionLevel">Depth of recursion in hierarchy enumeration. We add one tab
-        /// for each level in the recursion.</param>
-        private void DisplayHierarchyNode(IVsHierarchy hierarchy, uint itemid, int recursionLevel)
+        private void ProcessHierarchyNode(IVsHierarchy hierarchy, uint itemid, int recursionLevel)
         {
-            object pVar;
             int hr;
 
-            string text = "";
+            // Project Name
+            Object projectName;
+            hr = hierarchy.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_Name, out projectName);
 
-            for (int i = 0; i < recursionLevel; i++)
-                text += "\t";
-
-            //Get the name of the root node in question here and dump its value
-            hr = hierarchy.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_Name, out pVar);
-            text += (string)pVar;
-
-            Guid projectGuid = Guid.Empty;
+            // Project GUID
+            Guid projectGuid;
             hr = hierarchy.GetGuidProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectIDGuid, out projectGuid);
 
+            // Project Icon
+            Object imageList, index;
+            hr = hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconImgList, out imageList);
+            hr = hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconIndex, out index);
+
+            IntPtr hIcon = ImageList_GetIcon(new IntPtr((int)imageList), (int)index, 0);
+            Bitmap icon = Bitmap.FromHicon(hIcon);
+
+            // Load Priority
             LoadPriority loadPriority = LoadPriority.DemandLoad;
             if (Guid.Empty != projectGuid)
             {
@@ -389,54 +381,17 @@ namespace EMCCaptiva.SolutionLoadManager
 
             if (null == m_RootProject)
             {
-                m_RootProject = m_LastProject = new ProjectInfo((string)pVar, projectGuid, loadPriority, null);
+                m_RootProject = m_LastProject = new ProjectInfo((string)projectName, projectGuid, loadPriority, null) { Icon = icon };
             }
             else
             {
-                m_LastProject = new ProjectInfo((string)pVar, projectGuid, loadPriority, m_CurrentProject);
+                m_LastProject = new ProjectInfo((string)projectName, projectGuid, loadPriority, m_CurrentProject) { Icon = icon };
                 m_CurrentProject.Children.Add(m_LastProject);
             }
-
-            // Create Project information tree
-            hr = hierarchy.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_TypeName, out pVar);
-            text += String.Format(" ({0})", (string)pVar);
-
-            OutputCommandString(text);
         }
 
-        /// <summary>
-        /// This functions prints on the debug ouput and on the generic pane of the output window
-        /// a text.
-        /// </summary>
-        /// <param name="text">text to send to Output Window.</param>
-        private static void OutputCommandString(string text)
-        {
-            // Build the string to write on the debugger and output window.
-            StringBuilder outputText = new StringBuilder(text);
-            outputText.Append("\n");
-
-            // Now print the string on the output window.
-            // The first step is to get a reference to IVsOutputWindow.
-            IVsOutputWindow outputWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
-            // If we fail to get it we can exit now.
-            if (null == outputWindow)
-            {
-                Trace.WriteLine("Failed to get a reference to IVsOutputWindow");
-                return;
-            }
-            // Now get the window pane for the general output.
-            Guid guidGeneral = Microsoft.VisualStudio.VSConstants.GUID_OutWindowGeneralPane;
-            IVsOutputWindowPane windowPane;
-            if (Microsoft.VisualStudio.ErrorHandler.Failed(outputWindow.GetPane(ref guidGeneral, out windowPane)))
-            {
-                Trace.WriteLine("Failed to get a reference to the Output Window General pane");
-                return;
-            }
-            if (Microsoft.VisualStudio.ErrorHandler.Failed(windowPane.OutputString(outputText.ToString())))
-            {
-                Trace.WriteLine("Failed to write on the output window");
-            }
-        }
+        [DllImport("comctl32.dll", SetLastError = true)]
+        public static extern IntPtr ImageList_GetIcon(IntPtr himl, int i, int flags);
 
         /// <summary>
         /// Gets the item id.
@@ -453,7 +408,9 @@ namespace EMCCaptiva.SolutionLoadManager
             if (pvar is long) return (uint)(long)pvar;
             return VSConstants.VSITEMID_NIL;
         }
-        
+
+        #endregion
+
         #region IVsSolutionLoadManager Members
 
         public int OnBeforeOpenProject(ref Guid guidProjectID, ref Guid guidProjectType, string pszFileName, IVsSolutionLoadManagerSupport pSLMgrSupport)
