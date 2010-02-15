@@ -136,6 +136,10 @@ namespace EMCCaptiva.SolutionLoadManager
                 m_LoadManagerMenuItem = new MenuCommand(MenuItemCallback, menuCommandID);
                 m_LoadManagerMenuItem.Visible = false;
                 mcs.AddCommand(m_LoadManagerMenuItem);
+
+                // Create the command for the menu item.
+                CommandID contextMenuCommandID = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManagerContext);
+                mcs.AddCommand(new MenuCommand(MenuItemCallback, contextMenuCommandID));
             }
             
             IVsSolution solution = GetService(typeof(SVsSolution)) as IVsSolution;

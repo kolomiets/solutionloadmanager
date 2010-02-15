@@ -23,9 +23,6 @@
   <!--Definition of some VSCT specific constants. In this sample we use it for the IDs inside the guidOfficeIcon group. -->
   <Extern href="msobtnid.h"/>
 
-
-
-
   <!--The Commands section is where we the commands, menus and menu groups are defined.
       This section uses a Guid to identify the package that provides the command defined inside it. -->
   <Commands package="guidSolutionLoadManagerPkg">
@@ -46,6 +43,10 @@
 
       <Group guid="guidSolutionLoadManagerCmdSet" id="MyMenuGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+      </Group>
+
+      <Group guid="guidSolutionLoadManagerCmdSet" id="SolutionContextMenuGroup" priority="0x0001">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_SOLNNODE"/>
       </Group>
 
     </Groups>
@@ -73,6 +74,17 @@
         </Strings>
       </Button>
 
+      <Button guid="guidSolutionLoadManagerCmdSet" id="cmdidSolutionLoadManagerContext" priority="0x0100" type="Button">
+        <Parent guid="guidSolutionLoadManagerCmdSet" id="SolutionContextMenuGroup" />
+        <Icon guid="guidImages" id="msotcidNoIcon" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <CommandName>cmdidSolutionLoadManagerContext</CommandName>
+          <ButtonText>Solution Load Manager...</ButtonText>
+        </Strings>
+      </Button>
+
     </Buttons>
    
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -88,19 +100,16 @@
  
   </Commands>
 
-  <VisibilityConstraints>
-    <VisibilityItem guid="guidSolutionLoadManagerCmdSet" id="cmdidSolutionLoadManager" context="UICONTEXT_SolutionExists" />
-  </VisibilityConstraints>
-
   <Symbols>
     <!-- This is the package guid. -->
     <GuidSymbol name="guidSolutionLoadManagerPkg" value="{2c8b59e2-48fb-4629-896f-4a550925e24c}" />
-    
+
     <!-- This is the guid used to group the menu commands together -->
     <GuidSymbol name="guidSolutionLoadManagerCmdSet" value="{fc8076ea-63e2-4fcf-a1d7-6aab2c322ad1}">
-
       <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="SolutionContextMenuGroup" value="0x1021" />
       <IDSymbol name="cmdidSolutionLoadManager" value="0x0100" />
+      <IDSymbol name="cmdidSolutionLoadManagerContext" value="0x0101" />
     </GuidSymbol>
     
     
