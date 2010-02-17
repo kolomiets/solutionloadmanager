@@ -12,7 +12,7 @@ Visual Studio requires a long time to load big solutions. Usually not all of pro
 = News =
 
  * 02/17/2010 - Version 0.2
-   * Interface has been simplified
-   * Persistance of settings was updated
-   * Some bugs with inconsistent state of  the solution tree have been fixed
-   * Project icons now show real state of the project.
+  * Interface has been simplified
+  * Settings persistence  was updated
+  * Inconsistent solution tree bugs have been fixed
+  * Project icons now show real state of the project.
