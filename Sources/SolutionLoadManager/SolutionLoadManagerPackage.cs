@@ -16,7 +16,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.Generic;
 
-namespace EMCCaptiva.SolutionLoadManager
+namespace Kolos.SolutionLoadManager
 {
     /// <summary>
     /// This is the class that implements the package exposed by this assembly.

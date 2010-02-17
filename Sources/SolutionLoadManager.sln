@@ -3,7 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolutionLoadManager", "SolutionLoadManager\SolutionLoadManager.csproj", "{29392CB7-1DCB-48B0-B9BF-E238209C836E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{608628ED-63D9-4413-99E7-805BFD722F1A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F7247B17-6CE5-4BF2-80C6-3E99C38AC72E}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		SolutionLoadManager.vsmdi = SolutionLoadManager.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = SolutionLoadManager.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -13,6 +25,10 @@ Global
 		{29392CB7-1DCB-48B0-B9BF-E238209C836E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29392CB7-1DCB-48B0-B9BF-E238209C836E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29392CB7-1DCB-48B0-B9BF-E238209C836E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{608628ED-63D9-4413-99E7-805BFD722F1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{608628ED-63D9-4413-99E7-805BFD722F1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{608628ED-63D9-4413-99E7-805BFD722F1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{608628ED-63D9-4413-99E7-805BFD722F1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

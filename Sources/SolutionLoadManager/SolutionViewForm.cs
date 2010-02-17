@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections;
 
-namespace EMCCaptiva.SolutionLoadManager
+namespace Kolos.SolutionLoadManager
 {
     public partial class SolutionViewForm : Form
     {

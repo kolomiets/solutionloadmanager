@@ -1,4 +1,4 @@
-﻿namespace EMCCaptiva.SolutionLoadManager
+﻿namespace Kolos.SolutionLoadManager
 {
     partial class SolutionViewForm
     {
