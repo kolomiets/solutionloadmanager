@@ -2,7 +2,7 @@
 // MUST match PkgCmdID.h
 using System;
 
-namespace EMCCaptiva.SolutionLoadManager
+namespace Kolos.SolutionLoadManager
 {
     static class PkgCmdIDList
     {

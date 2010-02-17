@@ -4,7 +4,7 @@ using System.Text;
 using System.Runtime.Serialization;
 using System.Drawing;
 
-namespace EMCCaptiva.SolutionLoadManager
+namespace Kolos.SolutionLoadManager
 {
     [Serializable]
     public enum LoadPriority
