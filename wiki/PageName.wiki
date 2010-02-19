@@ -1,0 +1,17 @@
+#summary Solution Load Manager Overview
+
+= Introduction =
+
+Extension provides access to load priority settings of solution projects. Each project can be loaded immediately, in background, only if needed, or explicitly.
+
+= Details =
+
+Visual Studio requires a long time to load big solutions. Usually not all of projects should be loaded instantly, for example legacy modules which are rarely changed. The extension allows dramatically reduce solution load time and memory pressure. Every project in solution could be configured separately.
+
+= News =
+
+ * 02/17/2010 - Version 0.2
+   * Interface has been simplified
+   * Persistance of settings was updated
+   * Some bugs with inconsistent state of  the solution tree have been fixed
+   * Project icons now show real state of the project.
