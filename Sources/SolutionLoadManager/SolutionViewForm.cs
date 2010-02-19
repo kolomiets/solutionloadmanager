@@ -183,11 +183,6 @@ namespace EMCCaptiva.SolutionLoadManager
             Close();
         }
 
-        private void refreshButton_Click(object sender, EventArgs e)
-        {
-            OnRefreshRequested(EventArgs.Empty);
-        }
-
         private void reloadButton_Click(object sender, EventArgs e)
         {
             OnReloadRequested(EventArgs.Empty);
@@ -200,15 +195,6 @@ namespace EMCCaptiva.SolutionLoadManager
         private void OnPriorityChanged(PriorityChangedEventArgs e)
         {
             var handler = PriorityChanged;
-            if (null != handler)
-                handler(this, e);
-        }
-
-        public event EventHandler RefreshRequested;
-
-        private void OnRefreshRequested(EventArgs e)
-        {
-            var handler = RefreshRequested;
             if (null != handler)
                 handler(this, e);
         }
