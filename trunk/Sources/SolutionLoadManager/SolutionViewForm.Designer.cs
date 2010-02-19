@@ -37,6 +37,7 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.projectIcons = new System.Windows.Forms.ImageList(this.components);
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
@@ -49,9 +50,7 @@
             this.priorityComboBox = new System.Windows.Forms.ComboBox();
             this.closeButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.refreshButton = new System.Windows.Forms.Button();
             this.reloadButton = new System.Windows.Forms.Button();
-            this.projectIcons = new System.Windows.Forms.ImageList(this.components);
             this.contextMenuStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -65,10 +64,10 @@
             this.treeView1.ContextMenuStrip = this.contextMenuStrip;
             this.treeView1.ImageIndex = 0;
             this.treeView1.ImageList = this.projectIcons;
-            this.treeView1.Location = new System.Drawing.Point(15, 12);
+            this.treeView1.Location = new System.Drawing.Point(12, 12);
             this.treeView1.Name = "treeView1";
             this.treeView1.SelectedImageIndex = 0;
-            this.treeView1.Size = new System.Drawing.Size(240, 348);
+            this.treeView1.Size = new System.Drawing.Size(243, 359);
             this.treeView1.TabIndex = 0;
             this.treeView1.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterCheck);
             this.treeView1.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseClick);
@@ -116,6 +115,12 @@
             this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.clearAllToolStripMenuItem.Text = "Clear All";
             this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
+            // 
+            // projectIcons
+            // 
+            this.projectIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.projectIcons.ImageSize = new System.Drawing.Size(16, 16);
+            this.projectIcons.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // label8
             // 
@@ -218,7 +223,7 @@
             // closeButton
             // 
             this.closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.closeButton.Location = new System.Drawing.Point(556, 337);
+            this.closeButton.Location = new System.Drawing.Point(556, 348);
             this.closeButton.Name = "closeButton";
             this.closeButton.Size = new System.Drawing.Size(75, 23);
             this.closeButton.TabIndex = 10;
@@ -243,21 +248,10 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Information";
             // 
-            // refreshButton
-            // 
-            this.refreshButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.refreshButton.Location = new System.Drawing.Point(261, 337);
-            this.refreshButton.Name = "refreshButton";
-            this.refreshButton.Size = new System.Drawing.Size(75, 23);
-            this.refreshButton.TabIndex = 10;
-            this.refreshButton.Text = "Refresh";
-            this.refreshButton.UseVisualStyleBackColor = true;
-            this.refreshButton.Click += new System.EventHandler(this.refreshButton_Click);
-            // 
             // reloadButton
             // 
             this.reloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.reloadButton.Location = new System.Drawing.Point(342, 337);
+            this.reloadButton.Location = new System.Drawing.Point(261, 348);
             this.reloadButton.Name = "reloadButton";
             this.reloadButton.Size = new System.Drawing.Size(94, 23);
             this.reloadButton.TabIndex = 10;
@@ -265,24 +259,17 @@
             this.reloadButton.UseVisualStyleBackColor = true;
             this.reloadButton.Click += new System.EventHandler(this.reloadButton_Click);
             // 
-            // projectIcons
-            // 
-            this.projectIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.projectIcons.ImageSize = new System.Drawing.Size(16, 16);
-            this.projectIcons.TransparentColor = System.Drawing.Color.Transparent;
-            // 
             // SolutionViewForm
             // 
             this.AcceptButton = this.closeButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(635, 372);
+            this.ClientSize = new System.Drawing.Size(643, 383);
             this.Controls.Add(this.treeView1);
-            this.Controls.Add(this.closeButton);
-            this.Controls.Add(this.refreshButton);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.reloadButton);
+            this.Controls.Add(this.closeButton);
             this.Controls.Add(this.priorityComboBox);
+            this.Controls.Add(this.reloadButton);
             this.Controls.Add(this.label10);
             this.MaximumSize = new System.Drawing.Size(651, 800);
             this.MinimumSize = new System.Drawing.Size(651, 410);
@@ -318,7 +305,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem selectAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearAllToolStripMenuItem;
-        private System.Windows.Forms.Button refreshButton;
         private System.Windows.Forms.Button reloadButton;
         private System.Windows.Forms.ImageList projectIcons;
     }

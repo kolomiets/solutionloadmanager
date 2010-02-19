@@ -1,11 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
   <Identifier Id="2c8b59e2-48fb-4629-896f-4a550925e24c">
-    <Name>SolutionLoadManager</Name>
+    <Name>Solution Load Manager</Name>
     <Author>Kolomiets Dmitry</Author>
-    <Version>0.1.2</Version>
-    <Description xml:space="preserve">Extension provides access to load priority settings for solution projects. Each project can be loaded immediately, in background, only if needed, or explicitly.</Description>
+    <Version>0.2</Version>
+    <Description xml:space="preserve">Extension provides access to load priority settings of solution projects. Each project can be loaded immediately, in background, only if needed, or explicitly.</Description>
     <Locale>1033</Locale>
+    <MoreInfoUrl>http://code.google.com/p/solutionloadmanager/wiki/Overview</MoreInfoUrl>
     <PreviewImage>Preview.PNG</PreviewImage>
     <InstalledByMsi>false</InstalledByMsi>
     <SupportedProducts>

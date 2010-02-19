@@ -43,20 +43,4 @@ namespace EMCCaptiva.SolutionLoadManager
             get { return m_Children; }
         }
     }
-
-    class ProjectInfoBinder : SerializationBinder
-    {
-        public override Type BindToType(string assemblyName, string typeName)
-        {
-            var typeInfo = typeName.Split('.');
-
-            //The latest item is the class name
-            var className = typeInfo[typeInfo.Length - 1];
-            if (className.Equals("ProjectInfo"))
-                return typeof(ProjectInfo);
-
-            return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName));
-        }
-    }
-
 }

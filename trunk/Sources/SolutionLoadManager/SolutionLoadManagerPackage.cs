@@ -14,6 +14,7 @@ using EnvDTE;
 using System.IO;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Collections.Generic;
 
 namespace EMCCaptiva.SolutionLoadManager
 {
@@ -47,9 +48,6 @@ namespace EMCCaptiva.SolutionLoadManager
         private ProjectInfo m_LastProject;
 
         private IVsSolutionLoadManagerSupport m_LoadManagerSupport;
-        private bool m_ForceProjectLoad;
-
-        private const String MyOptionKey = "SolutionLoadManager";
 
         /// <summary>
         /// Default constructor of the package.
@@ -61,64 +59,7 @@ namespace EMCCaptiva.SolutionLoadManager
         public SolutionLoadManagerPackage()
         {
             Trace.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
-            AddOptionKey(MyOptionKey);
         }
-
-        #region Load/Save Settings
-
-        protected override void OnLoadOptions(string key, Stream stream)
-        {
-            // if key is a string this package cares about then
-            // stream can be used to read the data for runtime use
-            if (key == MyOptionKey)
-            {
-                try
-                {
-                    var formatter = new BinaryFormatter();
-                    formatter.Binder = new ProjectInfoBinder();
-                    m_RootProject = (ProjectInfo)formatter.Deserialize(stream);
-                }
-                catch (Exception)
-                {
-                    // no options, ok, no problem.
-                }
-            }
-            else
-            {
-                // If this isn't a key this package cares about, 
-                // then call the base class implementation
-                base.OnLoadOptions(key, stream);
-            }
-        }
-
-        protected override void OnSaveOptions(string key, Stream stream)
-        {
-            // if key is a string this package cares about then
-            // stream can be used to write the data
-            if (key == MyOptionKey)
-            {
-                try
-                {
-                    if (null != m_RootProject)
-                    {
-                        var formatter = new BinaryFormatter();
-                        formatter.Serialize(stream, m_RootProject);
-                    }
-                }
-                catch (Exception)
-                {
-                    // no options, ok, no problem.
-                }
-            }
-            else
-            {
-                // if this isn't a key this package cares about,
-                // then call the base class implementation
-                base.OnSaveOptions(key, stream);
-            }
-        }
-
-        #endregion
 
         #region Package Members
 
@@ -221,17 +162,9 @@ namespace EMCCaptiva.SolutionLoadManager
         /// </summary>
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            var form = new SolutionViewForm { RootProject = m_RootProject ?? UpdateEntireSolution() };
+            var form = new SolutionViewForm { RootProject = UpdateEntireSolution() };
             form.PriorityChanged += (s, args) => UpdateProjectLoadPriority(args.Project);
-            form.ReloadRequested += (s, args) => ReloadSolution();
-            form.RefreshRequested += (s, args) =>
-                {
-                    m_ForceProjectLoad = true;
-                    ReloadSolution();
-                    m_ForceProjectLoad = false;
-                    form.RootProject = UpdateEntireSolution();
-
-                };
+            form.ReloadRequested += (s, args) => { ReloadSolution(); form.RootProject = UpdateEntireSolution(); };
             form.ShowDialog();
             return;
         }
@@ -279,9 +212,7 @@ namespace EMCCaptiva.SolutionLoadManager
                 object pVar;
 
                 ProcessHierarchyNode(hierarchy, itemid, recursionLevel);
-
-                hr = hierarchy.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_TypeName, out pVar);
-                if (String.IsNullOrEmpty((string)pVar))
+                if (!m_ProjectGuids.Contains(m_LastProject.ProjectId))
                 {
                     recursionLevel++;
 
@@ -340,19 +271,24 @@ namespace EMCCaptiva.SolutionLoadManager
         {
             int hr;
 
+            // Canonical Name
+            String canonicalName;
+            hr = hierarchy.GetCanonicalName(itemid, out canonicalName);
+
             // Project Name
             Object projectName;
-            hr = hierarchy.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_Name, out projectName);
+            ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_Name, out projectName));
 
             // Project GUID
             Guid projectGuid;
             hr = hierarchy.GetGuidProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectIDGuid, out projectGuid);
+            if (Guid.Empty == projectGuid) // in case when project is unloaded
+                m_ProjectNames.TryGetValue(canonicalName, out projectGuid);
 
             // Project Icon
             Object imageList, index;
-            hr = hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconImgList, out imageList);
-            hr = hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconIndex, out index);
-
+            ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconImgList, out imageList));
+            ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconIndex, out index));
             IntPtr hIcon = ImageList_GetIcon(new IntPtr((int)imageList), (int)index, 0);
             Bitmap icon = Bitmap.FromHicon(hIcon);
 
@@ -413,12 +349,16 @@ namespace EMCCaptiva.SolutionLoadManager
 
         #region IVsSolutionLoadManager Members
 
+        HashSet<Guid> m_ProjectGuids = new HashSet<Guid>();
+        Dictionary<String, Guid> m_ProjectNames = new Dictionary<String, Guid>();
+        
         public int OnBeforeOpenProject(ref Guid guidProjectID, ref Guid guidProjectType, string pszFileName, IVsSolutionLoadManagerSupport pSLMgrSupport)
         {
             m_LoadManagerSupport = pSLMgrSupport;
 
-            if (m_ForceProjectLoad)
-                pSLMgrSupport.SetProjectLoadPriority(guidProjectID, (uint)_VSProjectLoadPriority.PLP_DemandLoad);
+            m_ProjectGuids.Add(guidProjectID);
+            m_ProjectNames.Add(pszFileName, guidProjectID);
+            
             return VSConstants.S_OK;
         }
 
@@ -435,6 +375,10 @@ namespace EMCCaptiva.SolutionLoadManager
         {
             m_RootProject = m_CurrentProject = m_LastProject = null;
             m_LoadManagerMenuItem.Visible = false;
+
+            m_ProjectNames.Clear();
+            m_ProjectGuids.Clear();
+
             return VSConstants.S_OK;
         }
 
