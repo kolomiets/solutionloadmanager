@@ -7,6 +7,24 @@ namespace Kolos.SolutionLoadManager
 {
     public partial class SolutionViewForm : Form
     {
+        private class WaitCursor : IDisposable
+        {
+            public WaitCursor(Form parentForm)
+            {
+                ParentForm = parentForm;
+                OriginalCursor = ParentForm.Cursor;
+                ParentForm.Cursor = Cursors.WaitCursor;
+            }
+
+            public void Dispose()
+            {
+                ParentForm.Cursor = OriginalCursor;
+            }
+
+            public Form ParentForm { get; private set; }
+            private Cursor OriginalCursor { get; set; }
+        }
+
         // Create a node sorter that implements the IComparer interface.
         private class NodeSorter : IComparer
         {
@@ -185,7 +203,10 @@ namespace Kolos.SolutionLoadManager
 
         private void reloadButton_Click(object sender, EventArgs e)
         {
-            OnReloadRequested(EventArgs.Empty);
+            using (var waitCursor = new WaitCursor(this))
+            {
+                OnReloadRequested(EventArgs.Empty);
+            }
         }
 
         #region Events

@@ -166,7 +166,6 @@ namespace Kolos.SolutionLoadManager
             form.PriorityChanged += (s, args) => UpdateProjectLoadPriority(args.Project);
             form.ReloadRequested += (s, args) => { ReloadSolution(); form.RootProject = UpdateEntireSolution(); };
             form.ShowDialog();
-            return;
         }
 
         #region Enumerate Projects Hierarchy
@@ -289,7 +288,7 @@ namespace Kolos.SolutionLoadManager
             Object imageList, index;
             ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconImgList, out imageList));
             ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconIndex, out index));
-            IntPtr hIcon = ImageList_GetIcon(new IntPtr((int)imageList), (int)index, 0);
+            IntPtr hIcon = NativeMethods.ImageList_GetIcon(new IntPtr((int)imageList), (int)index, 0);
             Bitmap icon = Bitmap.FromHicon(hIcon);
 
             // Load Priority
@@ -326,8 +325,11 @@ namespace Kolos.SolutionLoadManager
             }
         }
 
-        [DllImport("comctl32.dll", SetLastError = true)]
-        public static extern IntPtr ImageList_GetIcon(IntPtr himl, int i, int flags);
+        private class NativeMethods
+        {
+            [DllImport("comctl32.dll", SetLastError = true)]
+            public static extern IntPtr ImageList_GetIcon(IntPtr himl, int i, int flags);
+        }
 
         /// <summary>
         /// Gets the item id.
