@@ -285,11 +285,30 @@ namespace Kolos.SolutionLoadManager
                 m_ProjectNames.TryGetValue(canonicalName, out projectGuid);
 
             // Project Icon
-            Object imageList, index;
-            ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconImgList, out imageList));
-            ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconIndex, out index));
-            IntPtr hIcon = NativeMethods.ImageList_GetIcon(new IntPtr((int)imageList), (int)index, 0);
-            Bitmap icon = Bitmap.FromHicon(hIcon);
+            Bitmap icon = null;
+            try
+            {
+                // Try to get icon from image list
+                Object imageList, index;
+                ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconImgList, out imageList));
+                ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconIndex, out index));
+                
+                IntPtr hIcon = NativeMethods.ImageList_GetIcon(new IntPtr((int)imageList), (int)index, 0);
+                icon = Bitmap.FromHicon(hIcon);
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    // There is something wrong with image list. Try to use icon handle instead
+                    Object iconHandle;
+                    ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconHandle, out iconHandle));
+                    icon = Bitmap.FromHicon(new IntPtr((int)iconHandle));
+                }
+                catch (Exception)
+                {
+                }
+            }
 
             // Load Priority
             LoadPriority loadPriority = LoadPriority.DemandLoad;
