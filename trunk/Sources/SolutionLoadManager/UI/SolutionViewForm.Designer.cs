@@ -1,5 +1,4 @@
-﻿using Kolos.SolutionLoadManager.UI;
-namespace Kolos.SolutionLoadManager
+﻿namespace Kolos.SolutionLoadManager.UI
 {
     partial class SolutionViewForm
     {
