@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Linq;
 using System.Collections;
+using Kolos.SolutionLoadManager.Settings;
+using Kolos.SolutionLoadManager.UI;
 
 namespace Kolos.SolutionLoadManager
 {
-    public partial class SolutionViewForm : Form
+    partial class SolutionViewForm : Form
     {
         private class WaitCursor : IDisposable
         {
@@ -49,10 +52,43 @@ namespace Kolos.SolutionLoadManager
         private static readonly Color LoadIfNeededColor = Color.FromArgb(255, 255, 192);
         private static readonly Color ExplicitLoadOnlyColor = Color.FromArgb(192, 255, 192);
 
-        public SolutionViewForm()
+        private ISettingsManager m_SettingsManager;
+        private Int32 newProfileIndex; 
+        private Int32 editProfilesIndex;
+
+        public SolutionViewForm(ProjectInfo solution, ISettingsManager settingsManager)
         {
             InitializeComponent();
-            treeView1.TreeViewNodeSorter = new NodeSorter();
+            projectsTreeView.TreeViewNodeSorter = new NodeSorter();
+            
+            m_SettingsManager = settingsManager;
+            RootProject = solution;
+
+            PopulateProfilesList();
+            SetActiveProfile(m_SettingsManager.ActiveProfile);
+        }
+
+        private void PopulateProfilesList()
+        {
+            profilesComboBox.Items.Clear();
+            profilesComboBox.Items.AddRange(m_SettingsManager.Profiles.ToArray());
+            // Add two special items to create new or edit existing profiles
+            newProfileIndex = profilesComboBox.Items.Add("<New...>");
+            editProfilesIndex = profilesComboBox.Items.Add("<Edit...>");
+        }
+
+        private void SetActiveProfile(String profile)
+        {
+            // Select current active profile...
+            if (profilesComboBox.Items.Contains(profile))
+            {
+                profilesComboBox.SelectedItem = profile;
+            }
+            else
+            {
+                //... if there is no active profile, just select the first one
+                profilesComboBox.SelectedIndex = 0;
+            }
         }
 
         public ProjectInfo RootProject
@@ -62,17 +98,17 @@ namespace Kolos.SolutionLoadManager
 
         private void UpdateTree(ProjectInfo info)
         {
-            treeView1.BeginUpdate();
-            treeView1.Nodes.Clear();
+            projectsTreeView.BeginUpdate();
+            projectsTreeView.Nodes.Clear();
             if (null != info)
             {
                 var rootNode = CreateTreeNode(info);
-                treeView1.Nodes.Add(rootNode);
-                treeView1.Sort();
+                projectsTreeView.Nodes.Add(rootNode);
+                projectsTreeView.Sort();
 
                 rootNode.Expand();
             }
-            treeView1.EndUpdate();
+            projectsTreeView.EndUpdate();
         }
 
         private TreeNode CreateTreeNode(ProjectInfo info)
@@ -114,7 +150,7 @@ namespace Kolos.SolutionLoadManager
 
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            treeView1.SelectedNode = e.Node;
+            projectsTreeView.SelectedNode = e.Node;
         }
 
         private void treeView1_AfterCheck(object sender, TreeViewEventArgs e)
@@ -125,7 +161,9 @@ namespace Kolos.SolutionLoadManager
 
         private void UpdateCheckedProjectsPriority(LoadPriority priority)
         {
-            UpdateNodes(treeView1.Nodes[0], n =>
+            String activeProfile = m_SettingsManager.ActiveProfile;
+
+            UpdateNodes(projectsTreeView.Nodes[0], n =>
             {
                 if (n.Checked)
                 {
@@ -133,10 +171,29 @@ namespace Kolos.SolutionLoadManager
                     info.Priority = priority;
                     OnPriorityChanged(new PriorityChangedEventArgs(info));
 
+                    // Save new project load priority
+                    m_SettingsManager.SetProjectLoadPriority(activeProfile, info.ProjectId, priority);
+
                     // Show load priory only for projects
                     if (0 == n.GetNodeCount(false))
                         n.BackColor = GetPriorityColor(info);
                 }
+            });
+        }
+
+        private void ChangeActiveProfile(String activeProfile)
+        {
+            m_SettingsManager.ActiveProfile = activeProfile;
+
+            UpdateNodes(projectsTreeView.Nodes[0], n =>
+            {
+                var info = (ProjectInfo)n.Tag;
+                info.Priority = m_SettingsManager.GetProjectLoadPriority(activeProfile, info.ProjectId); 
+                OnPriorityChanged(new PriorityChangedEventArgs(info));
+
+                // Show load priory only for projects
+                if (0 == n.GetNodeCount(false))
+                    n.BackColor = GetPriorityColor(info);
             });
         }
 
@@ -149,51 +206,36 @@ namespace Kolos.SolutionLoadManager
 
         private void expandToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var node = treeView1.SelectedNode;
+            var node = projectsTreeView.SelectedNode;
             if (null != node)
                 node.ExpandAll();
             else
-                treeView1.ExpandAll();
+                projectsTreeView.ExpandAll();
         }
 
         private void collapseToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var node = treeView1.SelectedNode;
+            var node = projectsTreeView.SelectedNode;
             if (null != node)
                 node.Collapse();
             else
-                treeView1.CollapseAll();
+                projectsTreeView.CollapseAll();
         }
 
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            treeView1.Nodes[0].Checked = true;
+            projectsTreeView.Nodes[0].Checked = true;
         }
 
         private void clearAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            treeView1.Nodes[0].Checked = false;
+            projectsTreeView.Nodes[0].Checked = false;
         }
 
-        private void priorityComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void priorityButton_Click(object sender, EventArgs e)
         {
-            switch (priorityComboBox.SelectedIndex)
-            {
-                case 0:
-                    UpdateCheckedProjectsPriority(LoadPriority.DemandLoad);
-                    break;
-                case 1:
-                    UpdateCheckedProjectsPriority(LoadPriority.BackgroundLoad);
-                    break;
-                case 2:
-                    UpdateCheckedProjectsPriority(LoadPriority.LoadIfNeeded);
-                    break;
-                case 3:
-                    UpdateCheckedProjectsPriority(LoadPriority.ExplicitLoadOnly);
-                    break;
-            }
-
-            priorityComboBox.SelectedIndex = -1;
+            var button = sender as ToolStripButton;
+            SetLoadPriority(Int32.Parse(button.Tag as String));
         }
 
         private void closeButton_Click(object sender, EventArgs e)
@@ -230,6 +272,49 @@ namespace Kolos.SolutionLoadManager
         }
 
         #endregion
+
+        private void SetLoadPriority(Int32 priorityIndex)
+        {
+            switch (priorityIndex)
+            {
+                case 0:
+                    UpdateCheckedProjectsPriority(LoadPriority.DemandLoad);
+                    break;
+                case 1:
+                    UpdateCheckedProjectsPriority(LoadPriority.BackgroundLoad);
+                    break;
+                case 2:
+                    UpdateCheckedProjectsPriority(LoadPriority.LoadIfNeeded);
+                    break;
+                case 3:
+                    UpdateCheckedProjectsPriority(LoadPriority.ExplicitLoadOnly);
+                    break;
+            }
+        }
+
+        private void profileComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (newProfileIndex == profilesComboBox.SelectedIndex)
+            {
+                var dlg = new NewProfileForm(m_SettingsManager);
+                dlg.ShowDialog();
+
+                PopulateProfilesList();
+                SetActiveProfile(dlg.ProfileName);
+            }
+            else if (editProfilesIndex == profilesComboBox.SelectedIndex)
+            {
+                var dlg = new EditProfilesForm(m_SettingsManager);
+                dlg.ShowDialog();
+
+                PopulateProfilesList();
+                SetActiveProfile(m_SettingsManager.ActiveProfile);
+            }
+            else
+            {
+                ChangeActiveProfile(profilesComboBox.SelectedItem as String);
+            }
+        }
     }
 
     public class PriorityChangedEventArgs : EventArgs

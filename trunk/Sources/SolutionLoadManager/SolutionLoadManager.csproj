@@ -35,6 +35,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.OLE.Interop" />
+    <Reference Include="Microsoft.VisualStudio.Settings, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=x86" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.9.0" />
@@ -110,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Guids.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="ProjectInfo.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -117,6 +119,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Settings\VsSettingsManager.cs" />
     <Compile Include="SolutionLoadManagerPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PkgCmdID.cs" />
@@ -125,6 +128,22 @@
     </Compile>
     <Compile Include="SolutionViewForm.Designer.cs">
       <DependentUpon>SolutionViewForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\ISettingsManager.cs" />
+    <Compile Include="UI\EditProfilesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\EditProfilesForm.Designer.cs">
+      <DependentUpon>EditProfilesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NativeTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\NewProfileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\NewProfileForm.Designer.cs">
+      <DependentUpon>NewProfileForm.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -135,7 +154,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SolutionViewForm.resx">
       <DependentUpon>SolutionViewForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\EditProfilesForm.resx">
+      <DependentUpon>EditProfilesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NewProfileForm.resx">
+      <DependentUpon>NewProfileForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>

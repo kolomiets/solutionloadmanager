@@ -3,7 +3,7 @@
   <Identifier Id="2c8b59e2-48fb-4629-896f-4a550925e24c">
     <Name>Solution Load Manager</Name>
     <Author>Kolomiets Dmitry</Author>
-    <Version>0.2.2</Version>
+    <Version>0.3</Version>
     <Description xml:space="preserve">This extension provides access to project load priority settings, i.e. it is possible to choose whether specified project should be loaded during solution "start up" or not. The extension allows dramatically reduce solution load time and memory pressure.</Description>
     <Locale>1033</Locale>
     <MoreInfoUrl>http://code.google.com/p/solutionloadmanager</MoreInfoUrl>
