@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Globalization;
-using System.Runtime.InteropServices;
-using System.ComponentModel.Design;
-using Microsoft.Win32;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio.Shell;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using EnvDTE;
-using System.IO;
-using System.Windows.Forms;
-using System.Drawing;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Runtime.InteropServices;
+using Kolos.SolutionLoadManager.Settings;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Settings;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Shell.Settings;
 
 namespace Kolos.SolutionLoadManager
 {
@@ -48,6 +45,10 @@ namespace Kolos.SolutionLoadManager
         private ProjectInfo m_LastProject;
 
         private IVsSolutionLoadManagerSupport m_LoadManagerSupport;
+        private ISettingsManager m_SettingsManager;
+
+        private HashSet<Guid> m_ProjectGuids = new HashSet<Guid>();
+        private Dictionary<String, Guid> m_ProjectNames = new Dictionary<String, Guid>();
 
         /// <summary>
         /// Default constructor of the package.
@@ -107,24 +108,7 @@ namespace Kolos.SolutionLoadManager
             if (null != m_LoadManagerSupport)
             {
                 Guid projectGuid = project.ProjectId;
-                _VSProjectLoadPriority loadState = _VSProjectLoadPriority.PLP_DemandLoad;
-                switch(project.Priority)
-                {
-                    case LoadPriority.DemandLoad:
-                        loadState = _VSProjectLoadPriority.PLP_DemandLoad;
-                        break;
-                    case LoadPriority.BackgroundLoad:
-                        loadState = _VSProjectLoadPriority.PLP_BackgroundLoad;
-                        break;
-                    case LoadPriority.LoadIfNeeded:
-                        loadState = _VSProjectLoadPriority.PLP_LoadIfNeeded;
-                        break;
-                    case LoadPriority.ExplicitLoadOnly:
-                        loadState = _VSProjectLoadPriority.PLP_ExplicitLoadOnly;
-                        break;
-                }
-
-                int hr = m_LoadManagerSupport.SetProjectLoadPriority(ref projectGuid, (uint)loadState);
+                int hr = m_LoadManagerSupport.SetProjectLoadPriority(ref projectGuid, (uint)project.Priority);
             }
         }
 
@@ -161,8 +145,10 @@ namespace Kolos.SolutionLoadManager
         /// the OleMenuCommandService service and the MenuCommand class.
         /// </summary>
         private void MenuItemCallback(object sender, EventArgs e)
-        {
-            var form = new SolutionViewForm { RootProject = UpdateEntireSolution() };
+        {            
+            var solution = UpdateEntireSolution();
+
+            var form = new SolutionViewForm(solution, m_SettingsManager);
             form.PriorityChanged += (s, args) => UpdateProjectLoadPriority(args.Project);
             form.ReloadRequested += (s, args) => { ReloadSolution(); form.RootProject = UpdateEntireSolution(); };
             form.ShowDialog();
@@ -285,6 +271,24 @@ namespace Kolos.SolutionLoadManager
                 m_ProjectNames.TryGetValue(canonicalName, out projectGuid);
 
             // Project Icon
+            Bitmap icon = RetrieveProjectIcon(hierarchy);
+
+            // Load Priority
+            LoadPriority loadPriority = RetrieveProjectLoadPriority(projectGuid);
+
+            if (null == m_RootProject)
+            {
+                m_RootProject = m_LastProject = new ProjectInfo((String)projectName, projectGuid, loadPriority, null) { Icon = icon };
+            }
+            else
+            {
+                m_LastProject = new ProjectInfo((String)projectName, projectGuid, loadPriority, m_CurrentProject) { Icon = icon };
+                m_CurrentProject.Children.Add(m_LastProject);
+            }
+        }
+
+        private static Bitmap RetrieveProjectIcon(IVsHierarchy hierarchy)
+        {
             Bitmap icon = null;
             try
             {
@@ -309,45 +313,24 @@ namespace Kolos.SolutionLoadManager
                 {
                 }
             }
+            return icon;
+        }
 
-            // Load Priority
+        private LoadPriority RetrieveProjectLoadPriority(Guid projectGuid)
+        {
             LoadPriority loadPriority = LoadPriority.DemandLoad;
             if (Guid.Empty != projectGuid)
             {
                 UInt32 loadState;
-                m_LoadManagerSupport.GetProjectLoadPriority(ref projectGuid, out loadState);
-                switch ((_VSProjectLoadPriority)loadState)
+                if (VSConstants.S_OK == m_LoadManagerSupport.GetProjectLoadPriority(ref projectGuid, out loadState))
                 {
-                    case _VSProjectLoadPriority.PLP_DemandLoad:
-                        loadPriority = LoadPriority.DemandLoad;
-                        break;
-                    case _VSProjectLoadPriority.PLP_BackgroundLoad:
-                        loadPriority = LoadPriority.BackgroundLoad;
-                        break;
-                    case _VSProjectLoadPriority.PLP_LoadIfNeeded:
-                        loadPriority = LoadPriority.LoadIfNeeded;
-                        break;
-                    case _VSProjectLoadPriority.PLP_ExplicitLoadOnly:
-                        loadPriority = LoadPriority.ExplicitLoadOnly;
-                        break;
+                    loadPriority = (LoadPriority)loadState;
+
+                    // Update active profile settings
+                    m_SettingsManager.SetProjectLoadPriority(m_SettingsManager.ActiveProfile, projectGuid, loadPriority);
                 }
             }
-
-            if (null == m_RootProject)
-            {
-                m_RootProject = m_LastProject = new ProjectInfo((string)projectName, projectGuid, loadPriority, null) { Icon = icon };
-            }
-            else
-            {
-                m_LastProject = new ProjectInfo((string)projectName, projectGuid, loadPriority, m_CurrentProject) { Icon = icon };
-                m_CurrentProject.Children.Add(m_LastProject);
-            }
-        }
-
-        private class NativeMethods
-        {
-            [DllImport("comctl32.dll", SetLastError = true)]
-            public static extern IntPtr ImageList_GetIcon(IntPtr himl, int i, int flags);
+            return loadPriority;
         }
 
         /// <summary>
@@ -369,9 +352,6 @@ namespace Kolos.SolutionLoadManager
         #endregion
 
         #region IVsSolutionLoadManager Members
-
-        HashSet<Guid> m_ProjectGuids = new HashSet<Guid>();
-        Dictionary<String, Guid> m_ProjectNames = new Dictionary<String, Guid>();
         
         public int OnBeforeOpenProject(ref Guid guidProjectID, ref Guid guidProjectType, string pszFileName, IVsSolutionLoadManagerSupport pSLMgrSupport)
         {
@@ -403,19 +383,34 @@ namespace Kolos.SolutionLoadManager
             return VSConstants.S_OK;
         }
 
+        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
+        {
+            IVsSolution solution = GetService(typeof(SVsSolution)) as IVsSolution;
+            if (null != solution)
+            {
+                String solutionDir, solutionFile, userSettingsFile;
+                ErrorHandler.ThrowOnFailure(solution.GetSolutionInfo(out solutionDir, out solutionFile, out userSettingsFile));
+
+                // TODO: write a good comment about it
+                String solutionId = Path.Combine(solutionDir, solutionFile).GetHashCode().ToString();
+
+                SettingsManager settingsManager = new ShellSettingsManager(this);
+                WritableSettingsStore settingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+                m_SettingsManager = new VsSettingsManager(solutionId, settingsStore);
+
+                m_LoadManagerMenuItem.Visible = true;
+            }
+
+            return VSConstants.S_OK;
+        }
+
         public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy)
         {
             return VSConstants.S_OK;
         }
 
         public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
-        {
-            m_LoadManagerMenuItem.Visible = true;
+        {           
             return VSConstants.S_OK;
         }
 
