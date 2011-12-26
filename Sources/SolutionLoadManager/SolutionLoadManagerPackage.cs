@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using Kolos.SolutionLoadManager.Settings;
+using Kolos.SolutionLoadManager.UI;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
