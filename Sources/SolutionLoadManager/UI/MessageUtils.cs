@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace Kolos.SolutionLoadManager.UI
 {
     /// <summary>
-    /// Class provides utilities methods to simplify work with user notifications.
+    /// Class provides utility methods to simplify work with user notifications.
     /// </summary>
     static class MessageUtils
     {
