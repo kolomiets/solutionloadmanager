@@ -13,8 +13,8 @@ namespace Kolos.SolutionLoadManager.Settings
     {
         #region Private Fields
 
-        private String m_SolutionId;
-        private WritableSettingsStore m_Settings;
+        private String _solutionId;
+        private WritableSettingsStore _settings;
 
         private const String SettingsCollectionName = "Solution Load Manager Settings";
         private const String DefaultProfileCollectionName = "Default Profile";
@@ -32,8 +32,8 @@ namespace Kolos.SolutionLoadManager.Settings
         /// <param name="settingsStore">Settings store to write settings to</param>
         public VsSettingsManager(String solutionId, WritableSettingsStore settingsStore)
         {
-            m_SolutionId = solutionId;
-            m_Settings = settingsStore;
+            _solutionId = solutionId;
+            _settings = settingsStore;
 
             CreateDefaultSolutionSettings();
         }
@@ -47,9 +47,9 @@ namespace Kolos.SolutionLoadManager.Settings
         /// </summary>
         public String ActiveProfile
         {
-            get { return m_Settings.GetString(SolutionCollection, ActiveProfilePropertyName); }
+            get { return _settings.GetString(SolutionCollection, ActiveProfilePropertyName); }
 
-            set { m_Settings.SetString(SolutionCollection, ActiveProfilePropertyName, value); }
+            set { _settings.SetString(SolutionCollection, ActiveProfilePropertyName, value); }
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Kolos.SolutionLoadManager.Settings
         /// </summary>
         public IEnumerable<String> Profiles
         {
-            get { return m_Settings.GetSubCollectionNames(SolutionCollection); }
+            get { return _settings.GetSubCollectionNames(SolutionCollection); }
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Kolos.SolutionLoadManager.Settings
                 ValidateExistingProfile(copySettingsFrom);
 
             if (String.IsNullOrEmpty(copySettingsFrom))
-                m_Settings.CreateCollection(GetProfileCollection(profile));
+                _settings.CreateCollection(GetProfileCollection(profile));
             else
                 CopyProfile(copySettingsFrom, profile);
         }
@@ -85,7 +85,7 @@ namespace Kolos.SolutionLoadManager.Settings
         {
             ValidateExistingProfile(profile);
 
-            m_Settings.DeleteCollection(GetProfileCollection(profile));
+            _settings.DeleteCollection(GetProfileCollection(profile));
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Kolos.SolutionLoadManager.Settings
         {
             ValidateExistingProfile(profile);
 
-            UInt32 loadState = m_Settings.GetUInt32(GetProfileCollection(profile), projectGuid.ToString(), 0);
+            UInt32 loadState = _settings.GetUInt32(GetProfileCollection(profile), projectGuid.ToString(), 0);
             return (LoadPriority)loadState;
         }
 
@@ -126,7 +126,7 @@ namespace Kolos.SolutionLoadManager.Settings
         {
             ValidateExistingProfile(profile);
 
-            m_Settings.SetUInt32(GetProfileCollection(profile), projectGuid.ToString(), (uint)priority);
+            _settings.SetUInt32(GetProfileCollection(profile), projectGuid.ToString(), (uint)priority);
         }
 
         #endregion
@@ -135,7 +135,7 @@ namespace Kolos.SolutionLoadManager.Settings
 
         private String SolutionCollection
         {
-            get { return Path.Combine(SettingsCollectionName, m_SolutionId); }
+            get { return Path.Combine(SettingsCollectionName, _solutionId); }
         }
 
         private String GetProfileCollection(String profile)
@@ -149,28 +149,28 @@ namespace Kolos.SolutionLoadManager.Settings
             String targetProperties = GetProfileCollection(destination);
 
             // Create settings collection if it does not exist
-            m_Settings.CreateCollection(targetProperties);
+            _settings.CreateCollection(targetProperties);
 
-            foreach (var propertyName in m_Settings.GetPropertyNames(sourceProperties))
+            foreach (var propertyName in _settings.GetPropertyNames(sourceProperties))
             {
-                UInt32 value = m_Settings.GetUInt32(sourceProperties, propertyName);
-                m_Settings.SetUInt32(targetProperties, propertyName, value);
+                UInt32 value = _settings.GetUInt32(sourceProperties, propertyName);
+                _settings.SetUInt32(targetProperties, propertyName, value);
             }
         }
 
         private void CreateDefaultSolutionSettings()
         {
             // check for settings collection
-            if (!m_Settings.CollectionExists(SolutionCollection))
+            if (!_settings.CollectionExists(SolutionCollection))
             {
-                m_Settings.CreateCollection(GetProfileCollection(DefaultProfileCollectionName));
+                _settings.CreateCollection(GetProfileCollection(DefaultProfileCollectionName));
                 ActiveProfile = DefaultProfileCollectionName;
             }
         }
 
         private void ValidateExistingProfile(String profile)
         {
-            if (String.IsNullOrEmpty(profile) || !m_Settings.CollectionExists(GetProfileCollection(profile)))
+            if (String.IsNullOrEmpty(profile) || !_settings.CollectionExists(GetProfileCollection(profile)))
                 throw new ArgumentException("Profile does not exist");
         }
 
@@ -179,7 +179,7 @@ namespace Kolos.SolutionLoadManager.Settings
             if (String.IsNullOrEmpty(profile))
                 throw new ArgumentException("Invalid profile name");
 
-            if (m_Settings.CollectionExists(GetProfileCollection(profile)))
+            if (_settings.CollectionExists(GetProfileCollection(profile)))
                 throw new ArgumentException("Profile already exist");
         }
 
