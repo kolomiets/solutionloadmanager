@@ -12,9 +12,9 @@ namespace Kolos.SolutionLoadManager.UI
     {
         #region Private Fields
 
-        private Boolean m_RenameEnabled;
-        private String m_OriginalProfileName;
-        private ISettingsManager m_SettingsManager;
+        private Boolean _renameInProcess;
+        private String _originalProfileName;
+        private readonly ISettingsManager _settingsManager;
 
         #endregion
 
@@ -30,7 +30,7 @@ namespace Kolos.SolutionLoadManager.UI
         {
             InitializeComponent();
 
-            m_SettingsManager = settingsManager;
+            _settingsManager = settingsManager;
 
             PopulateProfilesList();
         }
@@ -43,7 +43,7 @@ namespace Kolos.SolutionLoadManager.UI
         {
             profilesListView.Items.Clear();
 
-            foreach (var profile in m_SettingsManager.Profiles)
+            foreach (var profile in _settingsManager.Profiles)
                 profilesListView.Items.Add(new ListViewItem(profile));
 
             // Select first profile
@@ -66,46 +66,42 @@ namespace Kolos.SolutionLoadManager.UI
 
         private void removeButton_Click(object sender, EventArgs e)
         {
-            var selectedItem = GetSelectedItem();
+            var profile = GetSelectedItem().Text;
 
-            // TODO: move strings to resources
-            if (MessageBox.Show("Are you sure you want to remove '" + selectedItem.Text + "'?", 
-                                "Solution Load Manager",
-                                MessageBoxButtons.OKCancel, 
-                                MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.OK)
+            if (MessageUtils.AskOKCancelQuestion(String.Format(Resources.RemoveProfileQuestion, profile)))
             {
-                m_SettingsManager.RemoveProfile(selectedItem.Text);
+                _settingsManager.RemoveProfile(profile);
                 
                 // Reload profiles information
                 PopulateProfilesList();
-
-                // Clear DialogResult
-                this.DialogResult = System.Windows.Forms.DialogResult.None;
             }
+
+            // Clear DialogResult
+            this.DialogResult = System.Windows.Forms.DialogResult.None;
         }
 
         private void renameButton_Click(object sender, EventArgs e)
         {
-            m_RenameEnabled = true;
+            _renameInProcess = true;
 
             var selectedItem = GetSelectedItem();
-            m_OriginalProfileName = selectedItem.Text;
+            _originalProfileName = selectedItem.Text;
             selectedItem.BeginEdit();           
         }
 
         private void profilesListView_BeforeLabelEdit(object sender, LabelEditEventArgs e)
         {
-            e.CancelEdit = !m_RenameEnabled;
+            e.CancelEdit = !_renameInProcess;
         }
 
         private void profilesListView_AfterLabelEdit(object sender, LabelEditEventArgs e)
         {
-            m_RenameEnabled = false;
+            _renameInProcess = false;
 
             // If we cancel rename operation by hitting 'Esc' then label is null
             if (!String.IsNullOrEmpty(e.Label))
             {
-                m_SettingsManager.RenameProfile(m_OriginalProfileName, e.Label);
+                _settingsManager.RenameProfile(_originalProfileName, e.Label);
                 // Reload profiles information
                 PopulateProfilesList();
             }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows.Forms;
 using Kolos.SolutionLoadManager.Settings;
+using System.Collections.Generic;
 
 namespace Kolos.SolutionLoadManager.UI
 {
@@ -10,12 +11,6 @@ namespace Kolos.SolutionLoadManager.UI
     /// </summary>
     partial class NewProfileForm : Form
     {
-        #region Private Members
-
-        private ISettingsManager m_SettingsManager;
-
-        #endregion
-
         #region Public Members
 
         /// <summary>
@@ -24,14 +19,13 @@ namespace Kolos.SolutionLoadManager.UI
         /// <param name="settings">
         /// Settings manager which is used to retrieve information about existing profiles.
         /// </param>
-        public NewProfileForm(ISettingsManager settings)
+        public NewProfileForm(IEnumerable<String> profiles)
         {
             InitializeComponent();
 
-            m_SettingsManager = settings;
-            profilesComboBox.Items.AddRange(m_SettingsManager.Profiles.ToArray());
+            profilesComboBox.Items.AddRange(profiles.ToArray());
 
-            // <Empty> profile
+            // select <Empty> profile
             profilesComboBox.SelectedIndex = 0;
         }
 
@@ -40,7 +34,21 @@ namespace Kolos.SolutionLoadManager.UI
         /// </summary>
         public String ProfileName
         {
-            get { return profileNameTextBox.Text; }
+            get 
+            { 
+                return profileNameTextBox.Text;
+            }
+        }
+
+        /// <summary>
+        /// Name of the existing profile which settings will be copied to the new one.
+        /// </summary>
+        public String CopyFromProfile
+        {
+            get
+            {
+                return (0 == profilesComboBox.SelectedIndex) ? String.Empty : profilesComboBox.SelectedItem as String;
+            }
         }
 
         #endregion
@@ -49,19 +57,19 @@ namespace Kolos.SolutionLoadManager.UI
 
         private void okButton_Click(object sender, EventArgs e)
         {
-            // TODO: name validation
-
-            String sourceProfile = (0 == profilesComboBox.SelectedIndex)
-                                    ? String.Empty
-                                    : profilesComboBox.SelectedItem as String;
-
-            m_SettingsManager.AddProfile(profileNameTextBox.Text, sourceProfile);
-            Close();
-        }
-
-        private void cancelButton_Click(object sender, EventArgs e)
-        {
-            Close();
+            if (String.IsNullOrEmpty(ProfileName))
+            {
+                MessageUtils.ShowWarning(Resources.EmptyProfileNameWarning);
+            }
+            else if (profilesComboBox.Items.Contains(ProfileName))
+            {
+                MessageUtils.ShowWarning(Resources.ProfileAlreadyExistsWarning);
+            }
+            else
+            {
+                // All is OK. Close dialog.
+                DialogResult = System.Windows.Forms.DialogResult.OK;
+            }
         }
 
         #endregion
