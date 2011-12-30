@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.InteropServices;
+﻿using System.Windows.Forms;
 
 namespace Kolos.SolutionLoadManager.UI
 {
-    public class NativeTreeView : System.Windows.Forms.TreeView
+    /// <summary>
+    /// Slightly update TreeView control with enabled visual styles.
+    /// </summary>
+    public class NativeTreeView : TreeView
     {
         protected override void CreateHandle()
         {
