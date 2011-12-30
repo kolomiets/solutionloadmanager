@@ -3,7 +3,8 @@
 namespace Kolos.SolutionLoadManager.UI
 {
     /// <summary>
-    /// Slightly update TreeView control with enabled visual styles.
+    /// Slightly update TreeView control with enabled visual styles 
+    /// (nice triangles on Windows Vista/7 instead '+'/'-' buttons).
     /// </summary>
     public class NativeTreeView : TreeView
     {
