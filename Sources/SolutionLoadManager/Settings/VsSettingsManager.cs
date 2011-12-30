@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Settings;
-using Microsoft.VisualStudio.Shell.Settings;
-using Microsoft.VisualStudio.Shell.Interop;
-using System.Diagnostics.Contracts;
 using System.IO;
+using Microsoft.VisualStudio.Settings;
 
 namespace Kolos.SolutionLoadManager.Settings
 {
@@ -17,6 +11,8 @@ namespace Kolos.SolutionLoadManager.Settings
     /// </summary>
     public class VsSettingsManager: ISettingsManager
     {
+        #region Private Fields
+
         private String m_SolutionId;
         private WritableSettingsStore m_Settings;
 
@@ -24,6 +20,10 @@ namespace Kolos.SolutionLoadManager.Settings
         private const String DefaultProfileCollectionName = "Default Profile";
 
         private const String ActiveProfilePropertyName = "<Active Profile>";
+
+        #endregion
+
+        #region Public Members
 
         /// <summary>
         /// Creates instance of settings manager
@@ -37,6 +37,8 @@ namespace Kolos.SolutionLoadManager.Settings
 
             CreateDefaultSolutionSettings();
         }
+
+        #endregion
 
         #region ISettingsManager Members
 
@@ -129,6 +131,8 @@ namespace Kolos.SolutionLoadManager.Settings
 
         #endregion
 
+        #region Private Members
+
         private String SolutionCollection
         {
             get { return Path.Combine(SettingsCollectionName, m_SolutionId); }
@@ -178,5 +182,7 @@ namespace Kolos.SolutionLoadManager.Settings
             if (m_Settings.CollectionExists(GetProfileCollection(profile)))
                 throw new ArgumentException("Profile already exist");
         }
+
+        #endregion
     }
 }
