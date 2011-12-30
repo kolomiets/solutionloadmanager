@@ -366,8 +366,8 @@
             this.projectsTreeView.SelectedImageIndex = 0;
             this.projectsTreeView.Size = new System.Drawing.Size(243, 304);
             this.projectsTreeView.TabIndex = 0;
-            this.projectsTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterCheck);
-            this.projectsTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseClick);
+            this.projectsTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.projectsTreeView_AfterCheck);
+            this.projectsTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.projectsTreeView_NodeMouseClick);
             // 
             // SolutionViewForm
             // 

@@ -10,30 +10,12 @@ namespace Kolos.SolutionLoadManager.UI
 {
     partial class SolutionViewForm : Form
     {
-        private class WaitCursor : IDisposable
-        {
-            public WaitCursor(Form parentForm)
-            {
-                ParentForm = parentForm;
-                OriginalCursor = ParentForm.Cursor;
-                ParentForm.Cursor = Cursors.WaitCursor;
-            }
-
-            public void Dispose()
-            {
-                ParentForm.Cursor = OriginalCursor;
-            }
-
-            public Form ParentForm { get; private set; }
-            private Cursor OriginalCursor { get; set; }
-        }
-
-        // Create a node sorter that implements the IComparer interface.
-        private class NodeSorter : IComparer
-        {
-            // Compare the length of the strings, or the strings
-            // themselves, if they are the same length.
-            public int Compare(object x, object y)
+        /// <summary>
+        /// Compares solution tree nodes. Node with children "less" then other nodes.
+        /// </summary>
+        private class SolutionNodeComparer : IComparer
+        {           
+            public int Compare(Object x, Object y)
             {
                 TreeNode tx = x as TreeNode;
                 TreeNode ty = y as TreeNode;
@@ -43,7 +25,7 @@ namespace Kolos.SolutionLoadManager.UI
                 else if (0 != tx.GetNodeCount(false) && 0 == ty.GetNodeCount(false))
                     return -1;
                 else
-                    return string.Compare(tx.Text, ty.Text);
+                    return String.Compare(tx.Text, ty.Text);
             }
         }        
         
@@ -52,32 +34,32 @@ namespace Kolos.SolutionLoadManager.UI
         private static readonly Color LoadIfNeededColor = Color.FromArgb(255, 255, 192);
         private static readonly Color ExplicitLoadOnlyColor = Color.FromArgb(192, 255, 192);
 
-        private ISettingsManager m_SettingsManager;
-        private Int32 newProfileIndex; 
-        private Int32 editProfilesIndex;
+        private readonly ISettingsManager _settingsManager;
+        private Int32 _newProfileIndex; 
+        private Int32 _editProfilesIndex;
 
         public SolutionViewForm(ProjectInfo solution, ISettingsManager settingsManager)
         {
             InitializeComponent();
-            projectsTreeView.TreeViewNodeSorter = new NodeSorter();
+            projectsTreeView.TreeViewNodeSorter = new SolutionNodeComparer();
             
-            m_SettingsManager = settingsManager;
+            _settingsManager = settingsManager;
             RootProject = solution;
 
-            PopulateProfilesList();
-            SetActiveProfile(m_SettingsManager.ActiveProfile);
+            ReloadProfilesList();
+            SelectProfile(_settingsManager.ActiveProfile);
         }
 
-        private void PopulateProfilesList()
+        private void ReloadProfilesList()
         {
             profilesComboBox.Items.Clear();
-            profilesComboBox.Items.AddRange(m_SettingsManager.Profiles.ToArray());
+            profilesComboBox.Items.AddRange(_settingsManager.Profiles.ToArray());
             // Add two special items to create new or edit existing profiles
-            newProfileIndex = profilesComboBox.Items.Add("<New...>");
-            editProfilesIndex = profilesComboBox.Items.Add("<Edit...>");
+            _newProfileIndex = profilesComboBox.Items.Add(Resources.NewProfileListItem);
+            _editProfilesIndex = profilesComboBox.Items.Add(Resources.EditProfilesListItem);
         }
 
-        private void SetActiveProfile(String profile)
+        private void SelectProfile(String profile)
         {
             // Select current active profile...
             if (profilesComboBox.Items.Contains(profile))
@@ -148,12 +130,12 @@ namespace Kolos.SolutionLoadManager.UI
             }
         }
 
-        private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void projectsTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             projectsTreeView.SelectedNode = e.Node;
         }
 
-        private void treeView1_AfterCheck(object sender, TreeViewEventArgs e)
+        private void projectsTreeView_AfterCheck(object sender, TreeViewEventArgs e)
         {
             foreach (TreeNode child in e.Node.Nodes)
                 child.Checked = e.Node.Checked;
@@ -161,7 +143,7 @@ namespace Kolos.SolutionLoadManager.UI
 
         private void UpdateCheckedProjectsPriority(LoadPriority priority)
         {
-            String activeProfile = m_SettingsManager.ActiveProfile;
+            String activeProfile = _settingsManager.ActiveProfile;
 
             UpdateNodes(projectsTreeView.Nodes[0], n =>
             {
@@ -172,7 +154,7 @@ namespace Kolos.SolutionLoadManager.UI
                     OnPriorityChanged(new PriorityChangedEventArgs(info));
 
                     // Save new project load priority
-                    m_SettingsManager.SetProjectLoadPriority(activeProfile, info.ProjectId, priority);
+                    _settingsManager.SetProjectLoadPriority(activeProfile, info.ProjectId, priority);
 
                     // Show load priory only for projects
                     if (0 == n.GetNodeCount(false))
@@ -183,12 +165,12 @@ namespace Kolos.SolutionLoadManager.UI
 
         private void ChangeActiveProfile(String activeProfile)
         {
-            m_SettingsManager.ActiveProfile = activeProfile;
+            _settingsManager.ActiveProfile = activeProfile;
 
             UpdateNodes(projectsTreeView.Nodes[0], n =>
             {
                 var info = (ProjectInfo)n.Tag;
-                info.Priority = m_SettingsManager.GetProjectLoadPriority(activeProfile, info.ProjectId); 
+                info.Priority = _settingsManager.GetProjectLoadPriority(activeProfile, info.ProjectId); 
                 OnPriorityChanged(new PriorityChangedEventArgs(info));
 
                 // Show load priory only for projects
@@ -294,21 +276,24 @@ namespace Kolos.SolutionLoadManager.UI
 
         private void profileComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (newProfileIndex == profilesComboBox.SelectedIndex)
+            if (_newProfileIndex == profilesComboBox.SelectedIndex)
             {
-                var dlg = new NewProfileForm(m_SettingsManager);
-                dlg.ShowDialog();
+                var dlg = new NewProfileForm(_settingsManager.Profiles);
+                if (DialogResult.OK == dlg.ShowDialog())
+                {
+                    _settingsManager.AddProfile(dlg.ProfileName, dlg.CopyFromProfile);
 
-                PopulateProfilesList();
-                SetActiveProfile(dlg.ProfileName);
+                    ReloadProfilesList();
+                    SelectProfile(dlg.ProfileName);
+                }
             }
-            else if (editProfilesIndex == profilesComboBox.SelectedIndex)
+            else if (_editProfilesIndex == profilesComboBox.SelectedIndex)
             {
-                var dlg = new EditProfilesForm(m_SettingsManager);
+                var dlg = new EditProfilesForm(_settingsManager);
                 dlg.ShowDialog();
 
-                PopulateProfilesList();
-                SetActiveProfile(m_SettingsManager.ActiveProfile);
+                ReloadProfilesList();
+                SelectProfile(_settingsManager.ActiveProfile);
             }
             else
             {
