@@ -1,22 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using Kolos.SolutionLoadManager.Settings;
 
 namespace Kolos.SolutionLoadManager.UI
 {
+    /// <summary>
+    /// This forms is used to perform different operation on existing profiles.
+    /// </summary>
     partial class EditProfilesForm : Form
     {
+        #region Private Fields
+
         private Boolean m_RenameEnabled;
         private String m_OriginalProfileName;
         private ISettingsManager m_SettingsManager;
-        
 
+        #endregion
+
+        #region Public Members
+
+        /// <summary>
+        /// Creates new instance of the form.
+        /// </summary>
+        /// <param name="settingsManager">
+        /// Settings manager which is used to retrieve information about existing profiles.
+        /// </param>
         public EditProfilesForm(ISettingsManager settingsManager)
         {
             InitializeComponent();
@@ -25,6 +34,10 @@ namespace Kolos.SolutionLoadManager.UI
 
             PopulateProfilesList();
         }
+
+        #endregion
+
+        #region Private Members
 
         private void PopulateProfilesList()
         {
@@ -36,6 +49,15 @@ namespace Kolos.SolutionLoadManager.UI
             // Select first profile
             profilesListView.SelectedIndices.Add(0);
         }
+
+        private ListViewItem GetSelectedItem()
+        {
+            return profilesListView.SelectedItems.Cast<ListViewItem>().First();
+        }
+
+        #endregion
+
+        #region Event Handlers
 
         private void closeButton_Click(object sender, EventArgs e)
         {
@@ -89,11 +111,6 @@ namespace Kolos.SolutionLoadManager.UI
             }
         }
 
-        private ListViewItem GetSelectedItem()
-        {
-            return profilesListView.SelectedItems.Cast<ListViewItem>().First();
-        }
-
         private void profilesListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             Boolean profileSelected = profilesListView.SelectedIndices.Count != 0;
@@ -102,5 +119,7 @@ namespace Kolos.SolutionLoadManager.UI
             removeButton.Enabled = profileSelected && profilesListView.Items.Count > 1;
             renameButton.Enabled = profileSelected;
         }
+
+        #endregion
     }
 }

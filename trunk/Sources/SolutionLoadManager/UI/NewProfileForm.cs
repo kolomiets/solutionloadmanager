@@ -1,19 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using Kolos.SolutionLoadManager.Settings;
 
 namespace Kolos.SolutionLoadManager.UI
 {
+    /// <summary>
+    /// This form is used to create new profile or copy existing one.
+    /// </summary>
     partial class NewProfileForm : Form
     {
+        #region Private Members
+
         private ISettingsManager m_SettingsManager;
 
+        #endregion
+
+        #region Public Members
+
+        /// <summary>
+        /// Creates new instance of the form.
+        /// </summary>
+        /// <param name="settings">
+        /// Settings manager which is used to retrieve information about existing profiles.
+        /// </param>
         public NewProfileForm(ISettingsManager settings)
         {
             InitializeComponent();
@@ -25,10 +35,17 @@ namespace Kolos.SolutionLoadManager.UI
             profilesComboBox.SelectedIndex = 0;
         }
 
+        /// <summary>
+        /// Name of the new profile.
+        /// </summary>
         public String ProfileName
         {
             get { return profileNameTextBox.Text; }
         }
+
+        #endregion
+
+        #region Event Handlers
 
         private void okButton_Click(object sender, EventArgs e)
         {
@@ -46,5 +63,7 @@ namespace Kolos.SolutionLoadManager.UI
         {
             Close();
         }
+
+        #endregion
     }
 }
