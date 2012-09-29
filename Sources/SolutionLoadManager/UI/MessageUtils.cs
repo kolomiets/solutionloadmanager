@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Kolos.SolutionLoadManager.UI
@@ -30,7 +27,7 @@ namespace Kolos.SolutionLoadManager.UI
             return MessageBox.Show(message, 
                                    Resources.ExtensionName, 
                                    MessageBoxButtons.OKCancel, 
-                                   MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.OK;            
+                                   MessageBoxIcon.Question) == DialogResult.OK;            
         }
     }
 }

@@ -53,7 +53,7 @@
             this.removeButton.TabIndex = 2;
             this.removeButton.Text = "&Remove";
             this.removeButton.UseVisualStyleBackColor = true;
-            this.removeButton.Click += new System.EventHandler(this.removeButton_Click);
+            this.removeButton.Click += new System.EventHandler(this.RemoveButtonClick);
             // 
             // closeButton
             // 
@@ -64,7 +64,7 @@
             this.closeButton.TabIndex = 4;
             this.closeButton.Text = "Close";
             this.closeButton.UseVisualStyleBackColor = true;
-            this.closeButton.Click += new System.EventHandler(this.closeButton_Click);
+            this.closeButton.Click += new System.EventHandler(this.CloseButtonClick);
             // 
             // renameButton
             // 
@@ -74,7 +74,7 @@
             this.renameButton.TabIndex = 3;
             this.renameButton.Text = "Ren&ame";
             this.renameButton.UseVisualStyleBackColor = true;
-            this.renameButton.Click += new System.EventHandler(this.renameButton_Click);
+            this.renameButton.Click += new System.EventHandler(this.RenameButtonClick);
             // 
             // profilesListView
             // 
@@ -87,9 +87,9 @@
             this.profilesListView.TabIndex = 1;
             this.profilesListView.UseCompatibleStateImageBehavior = false;
             this.profilesListView.View = System.Windows.Forms.View.List;
-            this.profilesListView.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.profilesListView_AfterLabelEdit);
-            this.profilesListView.BeforeLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.profilesListView_BeforeLabelEdit);
-            this.profilesListView.SelectedIndexChanged += new System.EventHandler(this.profilesListView_SelectedIndexChanged);
+            this.profilesListView.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.ProfilesListViewAfterLabelEdit);
+            this.profilesListView.BeforeLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.ProfilesListViewBeforeLabelEdit);
+            this.profilesListView.SelectedIndexChanged += new System.EventHandler(this.ProfilesListViewSelectedIndexChanged);
             // 
             // EditProfilesForm
             // 

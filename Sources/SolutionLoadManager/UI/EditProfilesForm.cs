@@ -59,12 +59,12 @@ namespace Kolos.SolutionLoadManager.UI
 
         #region Event Handlers
 
-        private void closeButton_Click(object sender, EventArgs e)
+        private void CloseButtonClick(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
-        private void removeButton_Click(object sender, EventArgs e)
+        private void RemoveButtonClick(object sender, EventArgs e)
         {
             var profile = GetSelectedItem().Text;
 
@@ -77,10 +77,10 @@ namespace Kolos.SolutionLoadManager.UI
             }
 
             // Clear DialogResult
-            this.DialogResult = System.Windows.Forms.DialogResult.None;
+            DialogResult = DialogResult.None;
         }
 
-        private void renameButton_Click(object sender, EventArgs e)
+        private void RenameButtonClick(object sender, EventArgs e)
         {
             _renameInProcess = true;
 
@@ -89,12 +89,12 @@ namespace Kolos.SolutionLoadManager.UI
             selectedItem.BeginEdit();           
         }
 
-        private void profilesListView_BeforeLabelEdit(object sender, LabelEditEventArgs e)
+        private void ProfilesListViewBeforeLabelEdit(object sender, LabelEditEventArgs e)
         {
             e.CancelEdit = !_renameInProcess;
         }
 
-        private void profilesListView_AfterLabelEdit(object sender, LabelEditEventArgs e)
+        private void ProfilesListViewAfterLabelEdit(object sender, LabelEditEventArgs e)
         {
             _renameInProcess = false;
 
@@ -107,7 +107,7 @@ namespace Kolos.SolutionLoadManager.UI
             }
         }
 
-        private void profilesListView_SelectedIndexChanged(object sender, EventArgs e)
+        private void ProfilesListViewSelectedIndexChanged(object sender, EventArgs e)
         {
             Boolean profileSelected = profilesListView.SelectedIndices.Count != 0;
 
