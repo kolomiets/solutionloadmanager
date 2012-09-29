@@ -4,7 +4,6 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Collections;
 using Kolos.SolutionLoadManager.Settings;
-using Kolos.SolutionLoadManager.UI;
 
 namespace Kolos.SolutionLoadManager.UI
 {
@@ -14,18 +13,29 @@ namespace Kolos.SolutionLoadManager.UI
         /// Compares solution tree nodes. Node with children "less" then other nodes.
         /// </summary>
         private class SolutionNodeComparer : IComparer
-        {           
-            public int Compare(Object x, Object y)
+        {
+            /// <summary>
+            /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
+            /// </summary>
+            /// <returns>
+            /// A signed integer that indicates the relative values of <paramref name="x"/> and <paramref name="y"/>, 
+            /// as shown in the following table.Value Meaning Less than zero <paramref name="x"/> is less than <paramref name="y"/>. 
+            /// Zero <paramref name="x"/> equals <paramref name="y"/>. Greater than zero <paramref name="x"/> is greater than <paramref name="y"/>. 
+            /// </returns>
+            /// <param name="x">The first object to compare.</param>
+            /// <param name="y">The second object to compare.</param>           
+            public int Compare(object x, object y)
             {
-                TreeNode tx = x as TreeNode;
-                TreeNode ty = y as TreeNode;
+                var tx = x as TreeNode;
+                var ty = y as TreeNode;
 
                 if (0 == tx.GetNodeCount(false) && 0 != ty.GetNodeCount(false))
                     return 1;
-                else if (0 != tx.GetNodeCount(false) && 0 == ty.GetNodeCount(false))
+                
+                if (0 != tx.GetNodeCount(false) && 0 == ty.GetNodeCount(false))
                     return -1;
-                else
-                    return String.Compare(tx.Text, ty.Text);
+                
+                return string.Compare(tx.Text, ty.Text);
             }
         }        
         
@@ -99,7 +109,7 @@ namespace Kolos.SolutionLoadManager.UI
             foreach (var child in info.Children)
                 node.Nodes.Add(CreateTreeNode(child));
 
-            // Show load priory only for projects
+            // Show load priority only for projects
             if (0 == node.GetNodeCount(false))
                 node.BackColor = GetPriorityColor(info);
 
@@ -130,12 +140,12 @@ namespace Kolos.SolutionLoadManager.UI
             }
         }
 
-        private void projectsTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void ProjectsTreeViewNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             projectsTreeView.SelectedNode = e.Node;
         }
 
-        private void projectsTreeView_AfterCheck(object sender, TreeViewEventArgs e)
+        private void ProjectsTreeViewAfterCheck(object sender, TreeViewEventArgs e)
         {
             foreach (TreeNode child in e.Node.Nodes)
                 child.Checked = e.Node.Checked;
@@ -186,7 +196,7 @@ namespace Kolos.SolutionLoadManager.UI
                 UpdateNodes(child, action);
         }
 
-        private void expandToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ExpandToolStripMenuItemClick(object sender, EventArgs e)
         {
             var node = projectsTreeView.SelectedNode;
             if (null != node)
@@ -195,7 +205,7 @@ namespace Kolos.SolutionLoadManager.UI
                 projectsTreeView.ExpandAll();
         }
 
-        private void collapseToolStripMenuItem_Click(object sender, EventArgs e)
+        private void CollapseToolStripMenuItemClick(object sender, EventArgs e)
         {
             var node = projectsTreeView.SelectedNode;
             if (null != node)
@@ -204,30 +214,30 @@ namespace Kolos.SolutionLoadManager.UI
                 projectsTreeView.CollapseAll();
         }
 
-        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SelectAllToolStripMenuItemClick(object sender, EventArgs e)
         {
             projectsTreeView.Nodes[0].Checked = true;
         }
 
-        private void clearAllToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ClearAllToolStripMenuItemClick(object sender, EventArgs e)
         {
             projectsTreeView.Nodes[0].Checked = false;
         }
 
-        private void priorityButton_Click(object sender, EventArgs e)
+        private void PriorityButtonClick(object sender, EventArgs e)
         {
             var button = sender as ToolStripButton;
             SetLoadPriority(Int32.Parse(button.Tag as String));
         }
 
-        private void closeButton_Click(object sender, EventArgs e)
+        private void CloseButtonClick(object sender, EventArgs e)
         {
             Close();
         }
 
-        private void reloadButton_Click(object sender, EventArgs e)
+        private void ReloadButtonClick(object sender, EventArgs e)
         {
-            using (var waitCursor = new WaitCursor(this))
+            using (new WaitCursor(this))
             {
                 OnReloadRequested(EventArgs.Empty);
             }
@@ -274,7 +284,7 @@ namespace Kolos.SolutionLoadManager.UI
             }
         }
 
-        private void profileComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void ProfileComboBoxSelectedIndexChanged(object sender, EventArgs e)
         {
             if (_newProfileIndex == profilesComboBox.SelectedIndex)
             {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
-using Kolos.SolutionLoadManager.Settings;
 using System.Collections.Generic;
 
 namespace Kolos.SolutionLoadManager.UI
@@ -16,9 +15,7 @@ namespace Kolos.SolutionLoadManager.UI
         /// <summary>
         /// Creates new instance of the form.
         /// </summary>
-        /// <param name="settings">
-        /// Settings manager which is used to retrieve information about existing profiles.
-        /// </param>
+        /// <param name="profiles">Existing profiles to show in the form.</param>
         public NewProfileForm(IEnumerable<String> profiles)
         {
             InitializeComponent();
@@ -30,18 +27,15 @@ namespace Kolos.SolutionLoadManager.UI
         }
 
         /// <summary>
-        /// Name of the new profile.
+        /// Gets the name of the new profile.
         /// </summary>
         public String ProfileName
         {
-            get 
-            { 
-                return profileNameTextBox.Text;
-            }
+            get { return profileNameTextBox.Text; }
         }
 
         /// <summary>
-        /// Name of the existing profile which settings will be copied to the new one.
+        /// Gets the name of the existing profile which settings will be copied to the new one.
         /// </summary>
         public String CopyFromProfile
         {
@@ -55,7 +49,7 @@ namespace Kolos.SolutionLoadManager.UI
 
         #region Event Handlers
 
-        private void okButton_Click(object sender, EventArgs e)
+        private void OkButtonClick(object sender, EventArgs e)
         {
             if (String.IsNullOrEmpty(ProfileName))
             {
@@ -68,7 +62,7 @@ namespace Kolos.SolutionLoadManager.UI
             else
             {
                 // All is OK. Close dialog.
-                DialogResult = System.Windows.Forms.DialogResult.OK;
+                DialogResult = DialogResult.OK;
             }
         }
 

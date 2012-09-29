@@ -51,6 +51,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.profilesComboBox = new System.Windows.Forms.ComboBox();
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
+            this.projectsTreeView = new Kolos.SolutionLoadManager.UI.NativeTreeView();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
@@ -60,7 +61,6 @@
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
-            this.projectsTreeView = new Kolos.SolutionLoadManager.UI.NativeTreeView();
             this.contextMenuStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
@@ -78,40 +78,40 @@
             this.selectAllToolStripMenuItem,
             this.clearAllToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip1";
-            this.contextMenuStrip.Size = new System.Drawing.Size(123, 98);
+            this.contextMenuStrip.Size = new System.Drawing.Size(118, 98);
             // 
             // expandAllToolStripMenuItem
             // 
             this.expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
-            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.expandAllToolStripMenuItem.Text = "Expand";
-            this.expandAllToolStripMenuItem.Click += new System.EventHandler(this.expandToolStripMenuItem_Click);
+            this.expandAllToolStripMenuItem.Click += new System.EventHandler(this.ExpandToolStripMenuItemClick);
             // 
             // collapseAllToolStripMenuItem
             // 
             this.collapseAllToolStripMenuItem.Name = "collapseAllToolStripMenuItem";
-            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.collapseAllToolStripMenuItem.Text = "Collapse";
-            this.collapseAllToolStripMenuItem.Click += new System.EventHandler(this.collapseToolStripMenuItem_Click);
+            this.collapseAllToolStripMenuItem.Click += new System.EventHandler(this.CollapseToolStripMenuItemClick);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(119, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(114, 6);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.selectAllToolStripMenuItem.Text = "Select All";
-            this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
+            this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.SelectAllToolStripMenuItemClick);
             // 
             // clearAllToolStripMenuItem
             // 
             this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
-            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.clearAllToolStripMenuItem.Text = "Clear All";
-            this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
+            this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.ClearAllToolStripMenuItemClick);
             // 
             // projectIcons
             // 
@@ -201,7 +201,7 @@
             this.closeButton.TabIndex = 10;
             this.closeButton.Text = "Close";
             this.closeButton.UseVisualStyleBackColor = true;
-            this.closeButton.Click += new System.EventHandler(this.closeButton_Click);
+            this.closeButton.Click += new System.EventHandler(this.CloseButtonClick);
             // 
             // groupBox1
             // 
@@ -229,7 +229,7 @@
             this.reloadButton.TabIndex = 10;
             this.reloadButton.Text = "Reload Solution";
             this.reloadButton.UseVisualStyleBackColor = true;
-            this.reloadButton.Click += new System.EventHandler(this.reloadButton_Click);
+            this.reloadButton.Click += new System.EventHandler(this.ReloadButtonClick);
             // 
             // label5
             // 
@@ -246,9 +246,9 @@
             this.profilesComboBox.FormattingEnabled = true;
             this.profilesComboBox.Location = new System.Drawing.Point(339, 15);
             this.profilesComboBox.Name = "profilesComboBox";
-            this.profilesComboBox.Size = new System.Drawing.Size(286, 21);
+            this.profilesComboBox.Size = new System.Drawing.Size(292, 21);
             this.profilesComboBox.TabIndex = 7;
-            this.profilesComboBox.SelectedIndexChanged += new System.EventHandler(this.profileComboBox_SelectedIndexChanged);
+            this.profilesComboBox.SelectedIndexChanged += new System.EventHandler(this.ProfileComboBoxSelectedIndexChanged);
             // 
             // toolStripContainer1
             // 
@@ -269,6 +269,23 @@
             // 
             this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
             // 
+            // projectsTreeView
+            // 
+            this.projectsTreeView.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.projectsTreeView.CheckBoxes = true;
+            this.projectsTreeView.ContextMenuStrip = this.contextMenuStrip;
+            this.projectsTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectsTreeView.ImageIndex = 0;
+            this.projectsTreeView.ImageList = this.projectIcons;
+            this.projectsTreeView.Indent = 19;
+            this.projectsTreeView.Location = new System.Drawing.Point(0, 0);
+            this.projectsTreeView.Name = "projectsTreeView";
+            this.projectsTreeView.SelectedImageIndex = 0;
+            this.projectsTreeView.Size = new System.Drawing.Size(243, 304);
+            this.projectsTreeView.TabIndex = 0;
+            this.projectsTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.ProjectsTreeViewAfterCheck);
+            this.projectsTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.ProjectsTreeViewNodeMouseClick);
+            // 
             // toolStrip1
             // 
             this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
@@ -284,13 +301,13 @@
             this.toolStripButton4});
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(209, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(203, 25);
             this.toolStrip1.TabIndex = 0;
             // 
             // toolStripLabel1
             // 
             this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(96, 22);
+            this.toolStripLabel1.Size = new System.Drawing.Size(90, 22);
             this.toolStripLabel1.Text = "Set Load Priority:";
             // 
             // toolStripButton1
@@ -302,7 +319,7 @@
             this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton1.Tag = "0";
             this.toolStripButton1.Text = "toolStripButton1";
-            this.toolStripButton1.Click += new System.EventHandler(this.priorityButton_Click);
+            this.toolStripButton1.Click += new System.EventHandler(this.PriorityButtonClick);
             // 
             // toolStripSeparator2
             // 
@@ -318,7 +335,7 @@
             this.toolStripButton2.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton2.Tag = "1";
             this.toolStripButton2.Text = "toolStripButton2";
-            this.toolStripButton2.Click += new System.EventHandler(this.priorityButton_Click);
+            this.toolStripButton2.Click += new System.EventHandler(this.PriorityButtonClick);
             // 
             // toolStripSeparator3
             // 
@@ -334,7 +351,7 @@
             this.toolStripButton3.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton3.Tag = "2";
             this.toolStripButton3.Text = "toolStripButton3";
-            this.toolStripButton3.Click += new System.EventHandler(this.priorityButton_Click);
+            this.toolStripButton3.Click += new System.EventHandler(this.PriorityButtonClick);
             // 
             // toolStripSeparator4
             // 
@@ -350,31 +367,14 @@
             this.toolStripButton4.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton4.Tag = "3";
             this.toolStripButton4.Text = "toolStripButton4";
-            this.toolStripButton4.Click += new System.EventHandler(this.priorityButton_Click);
-            // 
-            // treeView1
-            // 
-            this.projectsTreeView.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.projectsTreeView.CheckBoxes = true;
-            this.projectsTreeView.ContextMenuStrip = this.contextMenuStrip;
-            this.projectsTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.projectsTreeView.ImageIndex = 0;
-            this.projectsTreeView.ImageList = this.projectIcons;
-            this.projectsTreeView.Indent = 19;
-            this.projectsTreeView.Location = new System.Drawing.Point(0, 0);
-            this.projectsTreeView.Name = "treeView1";
-            this.projectsTreeView.SelectedImageIndex = 0;
-            this.projectsTreeView.Size = new System.Drawing.Size(243, 304);
-            this.projectsTreeView.TabIndex = 0;
-            this.projectsTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.projectsTreeView_AfterCheck);
-            this.projectsTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.projectsTreeView_NodeMouseClick);
+            this.toolStripButton4.Click += new System.EventHandler(this.PriorityButtonClick);
             // 
             // SolutionViewForm
             // 
             this.AcceptButton = this.closeButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(635, 354);
+            this.ClientSize = new System.Drawing.Size(643, 365);
             this.Controls.Add(this.toolStripContainer1);
             this.Controls.Add(this.closeButton);
             this.Controls.Add(this.groupBox1);
