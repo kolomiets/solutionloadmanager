@@ -225,6 +225,8 @@ namespace Kolos.SolutionLoadManager.Settings
 
         public class SolutionLoadProfile
         {
+            private readonly List<ProjectLoadInfo> _projects;
+
             public SolutionLoadProfile()
                 : this(null)
             { }
@@ -232,12 +234,15 @@ namespace Kolos.SolutionLoadManager.Settings
             public SolutionLoadProfile(string profileName, IEnumerable<ProjectLoadInfo> projects = null)
             {
                 ProfileName = profileName;
-                Projects = new List<ProjectLoadInfo>(projects ?? Enumerable.Empty<ProjectLoadInfo>());
+                _projects = new List<ProjectLoadInfo>(projects ?? Enumerable.Empty<ProjectLoadInfo>());
             }
 
             public string ProfileName { get; set; }
 
-            public List<ProjectLoadInfo> Projects { get; private set; }
+            public List<ProjectLoadInfo> Projects
+            {
+                get { return _projects; }
+            }
 
             public ProjectLoadInfo GetProject(Guid projectGuid)
             {
