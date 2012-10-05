@@ -301,7 +301,7 @@
             this.toolStripButton4});
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(203, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(234, 25);
             this.toolStrip1.TabIndex = 0;
             // 
             // toolStripLabel1
@@ -318,7 +318,7 @@
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton1.Tag = "0";
-            this.toolStripButton1.Text = "toolStripButton1";
+            this.toolStripButton1.Text = "Demand Load";
             this.toolStripButton1.Click += new System.EventHandler(this.PriorityButtonClick);
             // 
             // toolStripSeparator2
@@ -334,7 +334,7 @@
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton2.Tag = "1";
-            this.toolStripButton2.Text = "toolStripButton2";
+            this.toolStripButton2.Text = "Background Load";
             this.toolStripButton2.Click += new System.EventHandler(this.PriorityButtonClick);
             // 
             // toolStripSeparator3
@@ -350,7 +350,7 @@
             this.toolStripButton3.Name = "toolStripButton3";
             this.toolStripButton3.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton3.Tag = "2";
-            this.toolStripButton3.Text = "toolStripButton3";
+            this.toolStripButton3.Text = "Load If Needed";
             this.toolStripButton3.Click += new System.EventHandler(this.PriorityButtonClick);
             // 
             // toolStripSeparator4
@@ -366,7 +366,7 @@
             this.toolStripButton4.Name = "toolStripButton4";
             this.toolStripButton4.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton4.Tag = "3";
-            this.toolStripButton4.Text = "toolStripButton4";
+            this.toolStripButton4.Text = "Explicit Load Only";
             this.toolStripButton4.Click += new System.EventHandler(this.PriorityButtonClick);
             // 
             // SolutionViewForm
