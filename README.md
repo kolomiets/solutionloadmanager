@@ -21,6 +21,8 @@ After extension installation user has several ways of accessing load priority se
 
 Main window of the extension provides birds-eye view of the solution hierarchy including solution folders: 
 
+![Main Window](/Sources/SolutionLoadManager/Preview.PNG)
+
 To change load priority settings for a project (or a group of projects) you should select it in the tree and choose desired load priority. You could simply recognize current load priority level by background color of the project item.
 
 Additionally, you can define several "profiles" of settings. For example, you may have "Full Solution" profile that always loads all projects, "Unit Tests" profile that loads only unit tests projects and so on. You can have arbitrary number of profiles and easily switch between them.
