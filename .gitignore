@@ -5,3 +5,5 @@
 /Sources/SolutionLoadManager/bin
 /Sources/SolutionLoadManager/obj
 /Sources/UnitTests/obj
+/Sources/**/*.user
+/Sources/*.suo
