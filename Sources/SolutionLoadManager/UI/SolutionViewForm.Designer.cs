@@ -78,44 +78,44 @@
             this.selectAllToolStripMenuItem,
             this.clearAllToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip1";
-            this.contextMenuStrip.Size = new System.Drawing.Size(118, 98);
+            this.contextMenuStrip.Size = new System.Drawing.Size(123, 98);
             // 
             // expandAllToolStripMenuItem
             // 
             this.expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
-            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.expandAllToolStripMenuItem.Text = "Expand";
             this.expandAllToolStripMenuItem.Click += new System.EventHandler(this.ExpandToolStripMenuItemClick);
             // 
             // collapseAllToolStripMenuItem
             // 
             this.collapseAllToolStripMenuItem.Name = "collapseAllToolStripMenuItem";
-            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.collapseAllToolStripMenuItem.Text = "Collapse";
             this.collapseAllToolStripMenuItem.Click += new System.EventHandler(this.CollapseToolStripMenuItemClick);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(114, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(119, 6);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.selectAllToolStripMenuItem.Text = "Select All";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.SelectAllToolStripMenuItemClick);
             // 
             // clearAllToolStripMenuItem
             // 
             this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
-            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.clearAllToolStripMenuItem.Text = "Clear All";
             this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.ClearAllToolStripMenuItemClick);
             // 
             // projectIcons
             // 
-            this.projectIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.projectIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
             this.projectIcons.ImageSize = new System.Drawing.Size(16, 16);
             this.projectIcons.TransparentColor = System.Drawing.Color.Transparent;
             // 
@@ -301,13 +301,13 @@
             this.toolStripButton4});
             this.toolStrip1.Location = new System.Drawing.Point(3, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(234, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(209, 25);
             this.toolStrip1.TabIndex = 0;
             // 
             // toolStripLabel1
             // 
             this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(90, 22);
+            this.toolStripLabel1.Size = new System.Drawing.Size(96, 22);
             this.toolStripLabel1.Text = "Set Load Priority:";
             // 
             // toolStripButton1
@@ -374,7 +374,7 @@
             this.AcceptButton = this.closeButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(643, 365);
+            this.ClientSize = new System.Drawing.Size(635, 365);
             this.Controls.Add(this.toolStripContainer1);
             this.Controls.Add(this.closeButton);
             this.Controls.Add(this.groupBox1);
