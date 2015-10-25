@@ -32,16 +32,16 @@ Reload Solution button allows reload solution immediately to apply all changed p
 ## Version Log
 
 ### Version 0.5
-Released on 16 October 2015
+Released on October 16, 2015
 
 Visual Studio 2012/2013/2015 support.
 
 ### Version 0.4
-Released on 29 September 2012
+Released on September 29, 2012
 
 Profile settings are now stored alongside with VS solution file (with .slm file extension). It was one of the most requested features - now you can place load priority settings to the source control to share them with other developers.
 
 ### Version 0.3
-Released on 26 December 2011
+Released on December 26, 2011
 
 Profiles support has been added to keep several load priority settings for different scenarios (For example, you may have "Full Solution" profile that always loads all projects, "Unit Tests" profile that loads only unit tests projects, etc.)
