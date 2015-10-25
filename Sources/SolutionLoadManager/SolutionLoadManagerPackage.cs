@@ -34,7 +34,7 @@ namespace Kolos.SolutionLoadManager
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideAutoLoad(UIContextGuids.NoSolution)]
     [Guid(GuidList.guidSolutionLoadManagerPkgString)]
-    public sealed class SolutionLoadManagerPackage : Package, IVsSolutionLoadManager, IVsSolutionEvents
+    public sealed class SolutionLoadManagerPackage : Package, IVsSolutionLoadManager, IVsSolutionEvents, IVsSolutionLoadEvents
     {
         private readonly HashSet<Guid> _projectGuids = new HashSet<Guid>();
         private readonly Dictionary<String, Guid> _projectNames = new Dictionary<String, Guid>();
@@ -85,18 +85,13 @@ namespace Kolos.SolutionLoadManager
                 // Create the command for the context menu item.
                 var contextMenuCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManagerContext);
                 mcs.AddCommand(new MenuCommand(MenuItemCallback, contextMenuCommandId));
-            }
-            
-            // Activate solution load manager
+            }  
+          
+            // Subscribe to solution events
             var solution = GetService(typeof(SVsSolution)) as IVsSolution;
             if (null != solution)
             {
                 solution.AdviseSolutionEvents(this, out _solutionEventsCoockie);
-
-                object selectedLoadManager;
-                solution.GetProperty((int)__VSPROPID4.VSPROPID_ActiveSolutionLoadManager, out selectedLoadManager);
-                if (this != selectedLoadManager)
-                    solution.SetProperty((int)__VSPROPID4.VSPROPID_ActiveSolutionLoadManager, this);
             }
         }
 
@@ -104,10 +99,15 @@ namespace Kolos.SolutionLoadManager
 
         private void UpdateProjectLoadPriority(ProjectInfo project)
         {
+            UpdateProjectLoadPriority(project.ProjectId, project.Priority);
+        }
+
+        private void UpdateProjectLoadPriority(Guid projectId, LoadPriority priority)
+        {
             if (null != _loadManagerSupport)
             {
-                var projectGuid = project.ProjectId;
-                int hr = _loadManagerSupport.SetProjectLoadPriority(ref projectGuid, (uint)project.Priority);
+                var projectGuid = projectId;
+                int hr = _loadManagerSupport.SetProjectLoadPriority(ref projectGuid, (uint)priority);
             }
         }
 
@@ -359,6 +359,10 @@ namespace Kolos.SolutionLoadManager
 
             _projectGuids.Add(guidProjectID);
             _projectNames.Add(pszFileName, guidProjectID);
+
+            // Set project priority according to profile
+            var priority = _settingsManager.GetProjectLoadPriority(_settingsManager.ActiveProfile, guidProjectID);
+            UpdateProjectLoadPriority(guidProjectID, priority);
             
             return VSConstants.S_OK;
         }
@@ -385,16 +389,7 @@ namespace Kolos.SolutionLoadManager
 
         public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
         {
-            var solution = GetService(typeof(SVsSolution)) as IVsSolution;
-            if (null != solution)
-            {
-                string solutionDir, solutionFile, userSettingsFile;
-                ErrorHandler.ThrowOnFailure(solution.GetSolutionInfo(out solutionDir, out solutionFile, out userSettingsFile));
-
-                _settingsManager = new XmlSettingsManager(Path.Combine(solutionDir, solutionFile));
-                _loadManagerMenuItem.Visible = true;
-            }
-
+            _loadManagerMenuItem.Visible = true;
             return VSConstants.S_OK;
         }
 
@@ -435,6 +430,53 @@ namespace Kolos.SolutionLoadManager
 
         public int OnQueryUnloadProject(IVsHierarchy pRealHierarchy, ref int pfCancel)
         {
+            return VSConstants.S_OK;
+        }
+
+        #endregion
+
+        #region IVsSolutionLoadEvents
+
+        public int OnAfterBackgroundSolutionLoadComplete()
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnAfterLoadProjectBatch(bool fIsBackgroundIdleBatch)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnBeforeBackgroundSolutionLoadBegins()
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnBeforeLoadProjectBatch(bool fIsBackgroundIdleBatch)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnBeforeOpenSolution(string pszSolutionFilename)
+        {
+            // Activate solution load manager
+            var solution = GetService(typeof(SVsSolution)) as IVsSolution;
+            if (null != solution)
+            {
+                object selectedLoadManager;
+                solution.GetProperty((int)__VSPROPID4.VSPROPID_ActiveSolutionLoadManager, out selectedLoadManager);
+                if (this != selectedLoadManager)
+                    solution.SetProperty((int)__VSPROPID4.VSPROPID_ActiveSolutionLoadManager, this);
+            }
+
+            _settingsManager = new XmlSettingsManager(pszSolutionFilename);
+            
+            return VSConstants.S_OK;
+        }
+
+        public int OnQueryBackgroundLoadProjectBatch(out bool pfShouldDelayLoadToNextIdle)
+        {
+            pfShouldDelayLoadToNextIdle = false;
             return VSConstants.S_OK;
         }
 
