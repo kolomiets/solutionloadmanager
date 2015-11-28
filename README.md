@@ -2,6 +2,8 @@
 
 Solution Load Manager is a Visual Studio 2010/2012/2013/2015 extension that provides access to project load priority settings. The extension is also available through Visual Studio Gallery
 
+![](https://kolomietsdmitry.visualstudio.com/DefaultCollection/_apis/public/build/definitions/37b50ce7-c9cf-4bba-8e8d-a4a15e2bb700/1/badge)
+
 ## Introduction
 Before Visual Studio 2010 release you had to spent a lot of time waiting while Visual Studio opens our big/huge/enormous solutions. It becomes a real development issue for large products. Often it is not possible to split solution to small pieces because of project dependencies, unit tests and convenience of development within one workspace.
 
