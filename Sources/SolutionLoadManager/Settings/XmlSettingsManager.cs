@@ -225,24 +225,18 @@ namespace Kolos.SolutionLoadManager.Settings
 
         public class SolutionLoadProfile
         {
-            private readonly List<ProjectLoadInfo> _projects;
-
-            public SolutionLoadProfile()
-                : this(null)
+            public SolutionLoadProfile() : this(null)
             { }
 
             public SolutionLoadProfile(string profileName, IEnumerable<ProjectLoadInfo> projects = null)
             {
                 ProfileName = profileName;
-                _projects = new List<ProjectLoadInfo>(projects ?? Enumerable.Empty<ProjectLoadInfo>());
+                Projects = new List<ProjectLoadInfo>(projects ?? Enumerable.Empty<ProjectLoadInfo>());
             }
 
             public string ProfileName { get; set; }
 
-            public List<ProjectLoadInfo> Projects
-            {
-                get { return _projects; }
-            }
+            public List<ProjectLoadInfo> Projects { get; }
 
             public ProjectLoadInfo GetProject(Guid projectGuid)
             {
@@ -276,7 +270,7 @@ namespace Kolos.SolutionLoadManager.Settings
             public static void Serialize(SolutionLoadInfo solutionLoadInfo, string filePath)
             {
                 if (solutionLoadInfo == null)
-                    throw new ArgumentNullException("solutionLoadInfo");
+                    throw new ArgumentNullException(nameof(solutionLoadInfo));
 
                 var serializer = new XmlSerializer(typeof(SolutionLoadInfo));
                 using (var fileStream = File.Create(filePath))

@@ -65,14 +65,14 @@
   <ItemGroup>
     <Compile Include="Guids.cs" />
     <Compile Include="NativeMethods.cs" />
-    <Compile Include="ProjectInfo.cs" />
+    <Compile Include="Settings\LoadPriority.cs" />
+    <Compile Include="Settings\ProjectInfo.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Settings\VsSettingsManager.cs" />
     <Compile Include="Settings\XmlSettingsManager.cs" />
     <Compile Include="SolutionLoadManagerPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
