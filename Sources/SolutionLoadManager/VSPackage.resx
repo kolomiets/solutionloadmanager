@@ -121,7 +121,7 @@
     <value>Solution Load Manager</value>
   </data>
   <data name="112" xml:space="preserve">
-    <value>Solution Load Manager, Dmitry Kolomiets 2011
+    <value>Solution Load Manager, Dmitry Kolomiets 2011-2015
 For more information, visit https://github.com/kolomiets/solutionloadmanager</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
