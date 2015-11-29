@@ -12,5 +12,9 @@ namespace Kolos.SolutionLoadManager
         // Context Menu Commands
         public const uint cmdidSolutionLoadManagerContext = 0x101;
         public const uint cmdidReloadSolutionContext = 0x102;
+
+        // Toolbar Commands
+        public const int cmdidActiveProfileCombo = 0x110;
+        public const int cmdidActiveProfileComboGetList = 0x111;
     };
 }

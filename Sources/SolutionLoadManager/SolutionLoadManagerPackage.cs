@@ -4,7 +4,7 @@ using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Kolos.SolutionLoadManager.Settings;
 using Kolos.SolutionLoadManager.UI;
@@ -37,11 +37,12 @@ namespace Kolos.SolutionLoadManager
     public sealed class SolutionLoadManagerPackage : Package, IVsSolutionLoadManager, IVsSolutionEvents, IVsSolutionLoadEvents
     {
         private readonly HashSet<Guid> _projectGuids = new HashSet<Guid>();
-        private readonly Dictionary<String, Guid> _projectNames = new Dictionary<String, Guid>();
+        private readonly Dictionary<string, Guid> _projectNames = new Dictionary<string, Guid>();
 
         private MenuCommand _loadManagerMenuItem;
+        private OleMenuCommand _activeProfileComboCommand;
 
-        private UInt32 _solutionEventsCoockie;
+        private uint _solutionEventsCoockie;
         private ProjectInfo _rootProject;
         private ProjectInfo _currentProject;
         private ProjectInfo _lastProject;
@@ -78,16 +79,28 @@ namespace Kolos.SolutionLoadManager
             {
                 // Create the command for the menu item.
                 var menuCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManager);
-                _loadManagerMenuItem = new MenuCommand(OpenSettingsMenuItemCallback, menuCommandId);
+                _loadManagerMenuItem = new MenuCommand(OnOpenSettingsMenuItem, menuCommandId);
                 _loadManagerMenuItem.Visible = false;
                 mcs.AddCommand(_loadManagerMenuItem);
 
-                // Create the command for the context menu item.
+                // Create commands for the context menu.
                 var settingsContextMenuCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManagerContext);
-                mcs.AddCommand(new MenuCommand(OpenSettingsMenuItemCallback, settingsContextMenuCommandId));
+                mcs.AddCommand(new MenuCommand(OnOpenSettingsMenuItem, settingsContextMenuCommandId));
 
                 var reloadContextMenuCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidReloadSolutionContext);
-                mcs.AddCommand(new MenuCommand(ReloadSolutionMenuItemCallback, reloadContextMenuCommandId));
+                mcs.AddCommand(new MenuCommand(OnReloadSolutionMenuItem, reloadContextMenuCommandId));
+                
+                // Initialize Active Profile combo.          
+                var activeProfileComboCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidActiveProfileCombo);
+                _activeProfileComboCommand = new OleMenuCommand(OnMenuMyDropDownCombo, activeProfileComboCommandId);
+                _activeProfileComboCommand.Enabled = false;
+                mcs.AddCommand(_activeProfileComboCommand);
+
+                // Initialize the "GetList" command for Active Profile combo.
+                var activeProfileComboGetListCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidActiveProfileComboGetList);
+                var activeProfileComboGetListCommand = new OleMenuCommand(OnMenuMyDropDownComboGetList, activeProfileComboGetListCommandId);
+                mcs.AddCommand(activeProfileComboGetListCommand);
+
             }  
           
             // Subscribe to solution events
@@ -146,7 +159,7 @@ namespace Kolos.SolutionLoadManager
         /// See the Initialize method to see how the menu item is associated to this function using
         /// the OleMenuCommandService service and the MenuCommand class.
         /// </summary>
-        private void OpenSettingsMenuItemCallback(object sender, EventArgs e)
+        private void OnOpenSettingsMenuItem(object sender, EventArgs e)
         {            
             var solution = UpdateEntireSolution();
 
@@ -161,9 +174,51 @@ namespace Kolos.SolutionLoadManager
         /// See the Initialize method to see how the menu item is associated to this function using
         /// the OleMenuCommandService service and the MenuCommand class.
         /// </summary>
-        private void ReloadSolutionMenuItemCallback(object sender, EventArgs e)
+        private void OnReloadSolutionMenuItem(object sender, EventArgs e)
         {
             ReloadSolution();
+        }
+
+        private void OnMenuMyDropDownCombo(object sender, EventArgs e)
+        {
+            var eventArgs = e as OleMenuCmdEventArgs;
+            if (eventArgs != null)
+            {
+                var input = eventArgs.InValue;
+                var output = eventArgs.OutValue;
+
+                if (output != IntPtr.Zero)
+                {
+                    // The IDE requests for the current value
+                    Marshal.GetNativeVariantForObject(_settingsManager.ActiveProfile, output);
+                }
+                else if (input != null)
+                {
+                    // New value was selected 
+                    var inputString = input.ToString();
+                    if (!string.Equals(_settingsManager.ActiveProfile, inputString))
+                    {
+                        _settingsManager.ActiveProfile = input.ToString();
+                        ReloadSolution();
+                    }
+                }
+            }
+        }
+
+        private void OnMenuMyDropDownComboGetList(object sender, EventArgs e)
+        {
+            var eventArgs = e as OleMenuCmdEventArgs;
+            if (eventArgs != null)
+            {
+                var input = eventArgs.InValue;
+                var output = eventArgs.OutValue;
+
+                if (input == null && output != IntPtr.Zero)
+                {
+                    var profiles = _settingsManager.Profiles.ToArray();
+                    Marshal.GetNativeVariantForObject(profiles, output);
+                }
+            }
         }
 
         #region Enumerate Projects Hierarchy
@@ -393,6 +448,7 @@ namespace Kolos.SolutionLoadManager
         {
             _rootProject = _currentProject = _lastProject = null;
             _loadManagerMenuItem.Visible = false;
+            _activeProfileComboCommand.Enabled = false;
 
             _projectNames.Clear();
             _projectGuids.Clear();
@@ -403,6 +459,8 @@ namespace Kolos.SolutionLoadManager
         public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
         {
             _loadManagerMenuItem.Visible = true;
+            _activeProfileComboCommand.Enabled = true;
+
             return VSConstants.S_OK;
         }
 

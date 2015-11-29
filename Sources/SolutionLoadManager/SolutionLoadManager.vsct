@@ -38,7 +38,15 @@
           <ButtonText>Solution Load Manager</ButtonText>
           <CommandName>Solution Load Manager</CommandName>
         </Strings>
-      </Menu>              
+      </Menu>
+
+      <Menu guid="guidSolutionLoadManagerCmdSet" id="SolutionManagerToolbar" priority="0x0000" type="Toolbar">
+        <Parent guid="guidSolutionLoadManagerCmdSet" id="0"/>
+        <Strings>
+          <ButtonText>SolutionLoadManagerToolbar</ButtonText>
+          <CommandName>Solution Load Manager</CommandName>
+        </Strings>
+      </Menu>
     </Menus>
     
     <!-- In this section you can define new menu groups. A menu group is a container for 
@@ -60,8 +68,28 @@
       <Group guid="guidSolutionLoadManagerCmdSet" id="SolutionContextMenuGroup" priority="0x0001">
         <Parent guid="guidSolutionLoadManagerCmdSet" id="SolutionContextMenu" />
       </Group>
-
+      
+      <!-- Toolbar group -->
+      <Group guid="guidSolutionLoadManagerCmdSet" id="SolutionManagerToolbarGroup" priority="0xFF45">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+      </Group>
+      
     </Groups>
+
+    <Combos>
+      <Combo guid="guidSolutionLoadManagerCmdSet" id="cmdidActiveProfileCombo" priority="0x0010" type="DropDownCombo" defaultWidth="130" idCommandList="cmdidActiveProfileComboGetList">
+        <Parent guid="guidSolutionLoadManagerCmdSet" id="SolutionManagerToolbarGroup"/>
+        <CommandFlag>IconAndText</CommandFlag>
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <MenuText>Active Profile: </MenuText>
+          <ButtonText>Active Profile</ButtonText>
+          <ToolTipText>Select Active Solution Profile</ToolTipText>
+          <CanonicalName>Active Profile</CanonicalName>
+          <CommandName>Active Profile</CommandName>
+        </Strings>
+      </Combo>
+    </Combos>
     
     <!--Buttons section. -->
     <!--This section defines the elements the user can interact with, like a menu command or a button 
@@ -121,6 +149,12 @@
  
   </Commands>
 
+  <CommandPlacements>
+    <CommandPlacement guid="guidSolutionLoadManagerCmdSet" id="SolutionManagerToolbarGroup" priority="0x0100">
+      <Parent guid="guidSolutionLoadManagerCmdSet" id="SolutionManagerToolbar"/>
+    </CommandPlacement>
+  </CommandPlacements>
+
   <Symbols>
     <!-- This is the package guid. -->
     <GuidSymbol name="guidSolutionLoadManagerPkg" value="{2c8b59e2-48fb-4629-896f-4a550925e24c}" />
@@ -132,11 +166,17 @@
 
       <IDSymbol name="SolutionContextMenu" value="0x1030" />
       <IDSymbol name="SolutionMainContextMenuGroup" value="0x1031" />
-      <IDSymbol name="SolutionContextMenuGroup" value="0x1032" />     
+      <IDSymbol name="SolutionContextMenuGroup" value="0x1032" />
+  
+      <IDSymbol name="SolutionManagerToolbar" value="0x1033"/>
+      <IDSymbol name="SolutionManagerToolbarGroup" value="0x1034"/>
       
       <IDSymbol name="cmdidSolutionLoadManager" value="0x0100" />
       <IDSymbol name="cmdidSolutionLoadManagerContext" value="0x0101" />
       <IDSymbol name="cmdidReloadSolutionContext" value="0x0102" />
+
+      <IDSymbol name="cmdidActiveProfileCombo" value="0x0110" />
+      <IDSymbol name="cmdidActiveProfileComboGetList" value="0x111"/>
 
     </GuidSymbol>
     
