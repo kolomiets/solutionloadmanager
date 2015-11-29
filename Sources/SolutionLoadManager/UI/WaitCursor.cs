@@ -6,7 +6,7 @@ namespace Kolos.SolutionLoadManager.UI
     /// <summary>
     /// Helper class that shows wait cursor during long operation.
     /// </summary>
-    class WaitCursor : IDisposable
+    internal class WaitCursor : IDisposable
     {
         private readonly Form _parentForm;
         private readonly Cursor _originalCursor;

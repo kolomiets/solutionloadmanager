@@ -11,7 +11,7 @@ namespace Kolos.SolutionLoadManager.UI
         protected override void CreateHandle()
         {
             base.CreateHandle();
-            NativeMethods.SetWindowTheme(this.Handle, "explorer", null);
+            NativeMethods.SetWindowTheme(Handle, "explorer", null);
         }
     }
 }

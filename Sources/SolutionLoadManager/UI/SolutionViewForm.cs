@@ -9,36 +9,8 @@ namespace Kolos.SolutionLoadManager.UI
 {
     partial class SolutionViewForm : Form
     {
-        /// <summary>
-        /// Compares solution tree nodes. Node with children "less" then other nodes.
-        /// </summary>
-        private class SolutionNodeComparer : IComparer
-        {
-            /// <summary>
-            /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
-            /// </summary>
-            /// <returns>
-            /// A signed integer that indicates the relative values of <paramref name="x"/> and <paramref name="y"/>, 
-            /// as shown in the following table.Value Meaning Less than zero <paramref name="x"/> is less than <paramref name="y"/>. 
-            /// Zero <paramref name="x"/> equals <paramref name="y"/>. Greater than zero <paramref name="x"/> is greater than <paramref name="y"/>. 
-            /// </returns>
-            /// <param name="x">The first object to compare.</param>
-            /// <param name="y">The second object to compare.</param>           
-            public int Compare(object x, object y)
-            {
-                var tx = x as TreeNode;
-                var ty = y as TreeNode;
+        #region Fields   
 
-                if (0 == tx.GetNodeCount(false) && 0 != ty.GetNodeCount(false))
-                    return 1;
-                
-                if (0 != tx.GetNodeCount(false) && 0 == ty.GetNodeCount(false))
-                    return -1;
-                
-                return string.Compare(tx.Text, ty.Text);
-            }
-        }        
-        
         private static readonly Color DemandLoadColor = Color.FromArgb(255, 192, 192);
         private static readonly Color BackgroundLoadColor = Color.FromArgb(255, 224, 192);
         private static readonly Color LoadIfNeededColor = Color.FromArgb(255, 255, 192);
@@ -47,6 +19,11 @@ namespace Kolos.SolutionLoadManager.UI
         private readonly ISettingsManager _settingsManager;
         private Int32 _newProfileIndex; 
         private Int32 _editProfilesIndex;
+
+
+        #endregion
+
+        #region Ctors
 
         public SolutionViewForm(ProjectInfo solution, ISettingsManager settingsManager)
         {
@@ -60,6 +37,156 @@ namespace Kolos.SolutionLoadManager.UI
             SelectProfile(_settingsManager.ActiveProfile);
         }
 
+        #endregion
+
+        #region Properties
+
+        public ProjectInfo RootProject
+        {
+            set { UpdateTree(value); }
+        }
+
+        #endregion
+
+        #region Events
+
+        public event EventHandler<PriorityChangedEventArgs> PriorityChanged;
+
+        public event EventHandler ReloadRequested;
+
+        #endregion
+
+        #region Private Static Methods
+
+        private static Color GetPriorityColor(ProjectInfo info)
+        {
+            switch (info.Priority)
+            {
+                case LoadPriority.DemandLoad:
+                    return DemandLoadColor;
+                case LoadPriority.BackgroundLoad:
+                    return BackgroundLoadColor;
+                case LoadPriority.LoadIfNeeded:
+                    return LoadIfNeededColor;
+                case LoadPriority.ExplicitLoadOnly:
+                    return ExplicitLoadOnlyColor;
+                default:
+                    return Color.White;
+            }
+        }
+
+        private static void UpdateNodes(TreeNode node, Action<TreeNode> action)
+        {
+            action(node);
+            foreach (TreeNode child in node.Nodes)
+                UpdateNodes(child, action);
+        }
+
+        #endregion
+
+        #region UI Handlers
+
+        private void OnPriorityChanged(PriorityChangedEventArgs e)
+        {
+            var handler = PriorityChanged;
+            handler?.Invoke(this, e);
+        }
+
+        private void OnReloadRequested(EventArgs e)
+        {
+            var handler = ReloadRequested;
+            handler?.Invoke(this, e);
+        }
+
+        private void ProjectsTreeViewNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            projectsTreeView.SelectedNode = e.Node;
+        }
+
+        private void ProjectsTreeViewAfterCheck(object sender, TreeViewEventArgs e)
+        {
+            foreach (TreeNode child in e.Node.Nodes)
+                child.Checked = e.Node.Checked;
+        }
+
+        private void ExpandToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            var node = projectsTreeView.SelectedNode;
+            if (null != node)
+                node.ExpandAll();
+            else
+                projectsTreeView.ExpandAll();
+        }
+
+        private void CollapseToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            var node = projectsTreeView.SelectedNode;
+            if (null != node)
+                node.Collapse();
+            else
+                projectsTreeView.CollapseAll();
+        }
+
+        private void SelectAllToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            projectsTreeView.Nodes[0].Checked = true;
+        }
+
+        private void ClearAllToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            projectsTreeView.Nodes[0].Checked = false;
+        }
+
+        private void PriorityButtonClick(object sender, EventArgs e)
+        {
+            var button = sender as ToolStripButton;
+            SetLoadPriority(int.Parse(button.Tag as string));
+        }
+
+        private void CloseButtonClick(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void ReloadButtonClick(object sender, EventArgs e)
+        {
+            using (new WaitCursor(this))
+            {
+                OnReloadRequested(EventArgs.Empty);
+            }
+        }
+
+        private void ProfileComboBoxSelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_newProfileIndex == profilesComboBox.SelectedIndex)
+            {
+                var dlg = new NewProfileForm(_settingsManager.Profiles);
+                if (DialogResult.OK == dlg.ShowDialog())
+                {
+                    _settingsManager.AddProfile(dlg.ProfileName, dlg.CopyFromProfile);
+
+                    ReloadProfilesList();
+                    SelectProfile(dlg.ProfileName);
+                }
+            }
+            else if (_editProfilesIndex == profilesComboBox.SelectedIndex)
+            {
+                var dlg = new EditProfilesForm(_settingsManager);
+                dlg.ShowDialog();
+
+                ReloadProfilesList();
+                SelectProfile(_settingsManager.ActiveProfile);
+            }
+            else
+            {
+                ChangeActiveProfile(profilesComboBox.SelectedItem as string);
+            }
+        }
+
+        #endregion
+
+        #region Tree Processing Logic
+
         private void ReloadProfilesList()
         {
             profilesComboBox.Items.Clear();
@@ -69,7 +196,7 @@ namespace Kolos.SolutionLoadManager.UI
             _editProfilesIndex = profilesComboBox.Items.Add(Resources.EditProfilesListItem);
         }
 
-        private void SelectProfile(String profile)
+        private void SelectProfile(string profile)
         {
             // Select current active profile...
             if (profilesComboBox.Items.Contains(profile))
@@ -81,11 +208,6 @@ namespace Kolos.SolutionLoadManager.UI
                 //... if there is no active profile, just select the first one
                 profilesComboBox.SelectedIndex = 0;
             }
-        }
-
-        public ProjectInfo RootProject
-        {
-            set { UpdateTree(value); }
         }
 
         private void UpdateTree(ProjectInfo info)
@@ -123,34 +245,6 @@ namespace Kolos.SolutionLoadManager.UI
             return node;
         }
 
-        private static Color GetPriorityColor(ProjectInfo info)
-        {
-            switch (info.Priority)
-            {
-                case LoadPriority.DemandLoad:
-                    return DemandLoadColor;
-                case LoadPriority.BackgroundLoad:
-                    return BackgroundLoadColor;
-                case LoadPriority.LoadIfNeeded:
-                    return LoadIfNeededColor;
-                case LoadPriority.ExplicitLoadOnly:
-                    return ExplicitLoadOnlyColor;
-                default:
-                    return Color.White;
-            }
-        }
-
-        private void ProjectsTreeViewNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            projectsTreeView.SelectedNode = e.Node;
-        }
-
-        private void ProjectsTreeViewAfterCheck(object sender, TreeViewEventArgs e)
-        {
-            foreach (TreeNode child in e.Node.Nodes)
-                child.Checked = e.Node.Checked;
-        }
-
         private void UpdateCheckedProjectsPriority(LoadPriority priority)
         {
             String activeProfile = _settingsManager.ActiveProfile;
@@ -173,7 +267,7 @@ namespace Kolos.SolutionLoadManager.UI
             });
         }
 
-        private void ChangeActiveProfile(String activeProfile)
+        private void ChangeActiveProfile(string activeProfile)
         {
             _settingsManager.ActiveProfile = activeProfile;
 
@@ -189,83 +283,7 @@ namespace Kolos.SolutionLoadManager.UI
             });
         }
 
-        private static void UpdateNodes(TreeNode node, Action<TreeNode> action)
-        {
-            action(node);
-            foreach (TreeNode child in node.Nodes)
-                UpdateNodes(child, action);
-        }
-
-        private void ExpandToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            var node = projectsTreeView.SelectedNode;
-            if (null != node)
-                node.ExpandAll();
-            else
-                projectsTreeView.ExpandAll();
-        }
-
-        private void CollapseToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            var node = projectsTreeView.SelectedNode;
-            if (null != node)
-                node.Collapse();
-            else
-                projectsTreeView.CollapseAll();
-        }
-
-        private void SelectAllToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            projectsTreeView.Nodes[0].Checked = true;
-        }
-
-        private void ClearAllToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            projectsTreeView.Nodes[0].Checked = false;
-        }
-
-        private void PriorityButtonClick(object sender, EventArgs e)
-        {
-            var button = sender as ToolStripButton;
-            SetLoadPriority(Int32.Parse(button.Tag as String));
-        }
-
-        private void CloseButtonClick(object sender, EventArgs e)
-        {
-            Close();
-        }
-
-        private void ReloadButtonClick(object sender, EventArgs e)
-        {
-            using (new WaitCursor(this))
-            {
-                OnReloadRequested(EventArgs.Empty);
-            }
-        }
-
-        #region Events
-
-        public event EventHandler<PriorityChangedEventArgs> PriorityChanged;
-
-        private void OnPriorityChanged(PriorityChangedEventArgs e)
-        {
-            var handler = PriorityChanged;
-            if (null != handler)
-                handler(this, e);
-        }
-
-        public event EventHandler ReloadRequested;
-
-        private void OnReloadRequested(EventArgs e)
-        {
-            var handler = ReloadRequested;
-            if (null != handler)
-                handler(this, e);
-        }
-
-        #endregion
-
-        private void SetLoadPriority(Int32 priorityIndex)
+        private void SetLoadPriority(int priorityIndex)
         {
             switch (priorityIndex)
             {
@@ -284,32 +302,41 @@ namespace Kolos.SolutionLoadManager.UI
             }
         }
 
-        private void ProfileComboBoxSelectedIndexChanged(object sender, EventArgs e)
+        #endregion
+
+        #region Nested Classes
+
+        /// <summary>
+        /// Compares solution tree nodes. Node with children "less" then other nodes.
+        /// </summary>
+        private class SolutionNodeComparer : IComparer
         {
-            if (_newProfileIndex == profilesComboBox.SelectedIndex)
+            /// <summary>
+            /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
+            /// </summary>
+            /// <returns>
+            /// A signed integer that indicates the relative values of <paramref name="x"/> and <paramref name="y"/>, 
+            /// as shown in the following table.Value Meaning Less than zero <paramref name="x"/> is less than <paramref name="y"/>. 
+            /// Zero <paramref name="x"/> equals <paramref name="y"/>. Greater than zero <paramref name="x"/> is greater than <paramref name="y"/>. 
+            /// </returns>
+            /// <param name="x">The first object to compare.</param>
+            /// <param name="y">The second object to compare.</param>           
+            public int Compare(object x, object y)
             {
-                var dlg = new NewProfileForm(_settingsManager.Profiles);
-                if (DialogResult.OK == dlg.ShowDialog())
-                {
-                    _settingsManager.AddProfile(dlg.ProfileName, dlg.CopyFromProfile);
+                var tx = x as TreeNode;
+                var ty = y as TreeNode;
 
-                    ReloadProfilesList();
-                    SelectProfile(dlg.ProfileName);
-                }
-            }
-            else if (_editProfilesIndex == profilesComboBox.SelectedIndex)
-            {
-                var dlg = new EditProfilesForm(_settingsManager);
-                dlg.ShowDialog();
+                if (0 == tx.GetNodeCount(false) && 0 != ty.GetNodeCount(false))
+                    return 1;
 
-                ReloadProfilesList();
-                SelectProfile(_settingsManager.ActiveProfile);
-            }
-            else
-            {
-                ChangeActiveProfile(profilesComboBox.SelectedItem as String);
+                if (0 != tx.GetNodeCount(false) && 0 == ty.GetNodeCount(false))
+                    return -1;
+
+                return string.Compare(tx.Text, ty.Text, StringComparison.InvariantCulture);
             }
         }
+
+        #endregion
     }
 
     public class PriorityChangedEventArgs : EventArgs

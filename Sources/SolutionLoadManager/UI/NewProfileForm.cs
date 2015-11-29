@@ -8,7 +8,7 @@ namespace Kolos.SolutionLoadManager.UI
     /// <summary>
     /// This form is used to create new profile or copy existing one.
     /// </summary>
-    partial class NewProfileForm : Form
+    internal partial class NewProfileForm : Form
     {
         #region Public Members
 
@@ -16,7 +16,7 @@ namespace Kolos.SolutionLoadManager.UI
         /// Creates new instance of the form.
         /// </summary>
         /// <param name="profiles">Existing profiles to show in the form.</param>
-        public NewProfileForm(IEnumerable<String> profiles)
+        public NewProfileForm(IEnumerable<string> profiles)
         {
             InitializeComponent();
 
@@ -29,21 +29,13 @@ namespace Kolos.SolutionLoadManager.UI
         /// <summary>
         /// Gets the name of the new profile.
         /// </summary>
-        public String ProfileName
-        {
-            get { return profileNameTextBox.Text; }
-        }
+        public string ProfileName => profileNameTextBox.Text;
 
         /// <summary>
         /// Gets the name of the existing profile which settings will be copied to the new one.
         /// </summary>
-        public String CopyFromProfile
-        {
-            get
-            {
-                return (0 == profilesComboBox.SelectedIndex) ? String.Empty : profilesComboBox.SelectedItem as String;
-            }
-        }
+        public string CopyFromProfile => 
+            (0 == profilesComboBox.SelectedIndex) ? string.Empty : profilesComboBox.SelectedItem as string;
 
         #endregion
 
@@ -51,7 +43,7 @@ namespace Kolos.SolutionLoadManager.UI
 
         private void OkButtonClick(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(ProfileName))
+            if (string.IsNullOrEmpty(ProfileName))
             {
                 MessageUtils.ShowWarning(Resources.EmptyProfileNameWarning);
             }

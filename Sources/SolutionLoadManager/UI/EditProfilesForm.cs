@@ -8,12 +8,12 @@ namespace Kolos.SolutionLoadManager.UI
     /// <summary>
     /// This forms is used to perform different operation on existing profiles.
     /// </summary>
-    partial class EditProfilesForm : Form
+    internal partial class EditProfilesForm : Form
     {
         #region Private Fields
 
-        private Boolean _renameInProcess;
-        private String _originalProfileName;
+        private bool _renameInProcess;
+        private string _originalProfileName;
         private readonly ISettingsManager _settingsManager;
 
         #endregion
@@ -31,7 +31,6 @@ namespace Kolos.SolutionLoadManager.UI
             InitializeComponent();
 
             _settingsManager = settingsManager;
-
             PopulateProfilesList();
         }
 
@@ -68,7 +67,7 @@ namespace Kolos.SolutionLoadManager.UI
         {
             var profile = GetSelectedItem().Text;
 
-            if (MessageUtils.AskOKCancelQuestion(String.Format(Resources.RemoveProfileQuestion, profile)))
+            if (MessageUtils.AskOkCancelQuestion(String.Format(Resources.RemoveProfileQuestion, profile)))
             {
                 _settingsManager.RemoveProfile(profile);
                 
@@ -99,9 +98,10 @@ namespace Kolos.SolutionLoadManager.UI
             _renameInProcess = false;
 
             // If we cancel rename operation by hitting 'Esc' then label is null
-            if (!String.IsNullOrEmpty(e.Label))
+            if (!string.IsNullOrEmpty(e.Label))
             {
                 _settingsManager.RenameProfile(_originalProfileName, e.Label);
+
                 // Reload profiles information
                 PopulateProfilesList();
             }
@@ -109,7 +109,7 @@ namespace Kolos.SolutionLoadManager.UI
 
         private void ProfilesListViewSelectedIndexChanged(object sender, EventArgs e)
         {
-            Boolean profileSelected = profilesListView.SelectedIndices.Count != 0;
+            var profileSelected = profilesListView.SelectedIndices.Count != 0;
 
             // At least one profile should be available
             removeButton.Enabled = profileSelected && profilesListView.Items.Count > 1;
