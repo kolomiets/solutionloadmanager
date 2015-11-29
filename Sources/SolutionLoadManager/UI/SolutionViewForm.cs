@@ -7,7 +7,7 @@ using Kolos.SolutionLoadManager.Settings;
 
 namespace Kolos.SolutionLoadManager.UI
 {
-    partial class SolutionViewForm : Form
+    internal partial class SolutionViewForm : Form
     {
         #region Fields   
 
@@ -339,7 +339,7 @@ namespace Kolos.SolutionLoadManager.UI
         #endregion
     }
 
-    public class PriorityChangedEventArgs : EventArgs
+    internal class PriorityChangedEventArgs : EventArgs
     {
         public PriorityChangedEventArgs(ProjectInfo project)
         {

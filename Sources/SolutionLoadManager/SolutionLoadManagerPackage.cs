@@ -34,7 +34,7 @@ namespace Kolos.SolutionLoadManager
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideAutoLoad(UIContextGuids.NoSolution)]
     [Guid(GuidList.guidSolutionLoadManagerPkgString)]
-    public sealed class SolutionLoadManagerPackage : Package, IVsSolutionLoadManager, IVsSolutionEvents, IVsSolutionLoadEvents
+    public sealed partial class SolutionLoadManagerPackage : Package, IVsSolutionLoadManager
     {
         private readonly HashSet<Guid> _projectGuids = new HashSet<Guid>();
         private readonly Dictionary<string, Guid> _projectNames = new Dictionary<string, Guid>();
@@ -47,8 +47,8 @@ namespace Kolos.SolutionLoadManager
         private ProjectInfo _currentProject;
         private ProjectInfo _lastProject;
 
-        private IVsSolutionLoadManagerSupport _loadManagerSupport;
         private ISettingsManager _settingsManager;
+        private IVsSolutionLoadManagerSupport _loadManagerSupport;
 
         /// <summary>
         /// Default constructor of the package.
@@ -235,8 +235,6 @@ namespace Kolos.SolutionLoadManager
         /// VSHPROPID_NextSibling implementation of the Solution.</param>
         /// <param name="visibleNodesOnly">true if only nodes visible in the Solution Explorer should
         /// be traversed. false if all project items should be traversed.</param>
-        /// <param name="processNodeFunc">pointer to function that should be processed on each
-        /// node as it is visited in the depth first enumeration.</param>
         private void EnumHierarchyItems(IVsHierarchy hierarchy, uint itemid, int recursionLevel, bool hierIsSolution, bool visibleNodesOnly)
         {
             int hr;
@@ -389,7 +387,7 @@ namespace Kolos.SolutionLoadManager
             var loadPriority = LoadPriority.DemandLoad;
             if (Guid.Empty != projectGuid)
             {
-                UInt32 loadState;
+                uint loadState;
                 if (VSConstants.S_OK == _loadManagerSupport.GetProjectLoadPriority(ref projectGuid, out loadState))
                 {
                     loadPriority = (LoadPriority)loadState;
@@ -420,7 +418,8 @@ namespace Kolos.SolutionLoadManager
         #endregion
 
         #region IVsSolutionLoadManager Members
-        
+
+        /// <inheritdoc/>
         public int OnBeforeOpenProject(ref Guid guidProjectID, ref Guid guidProjectType, string pszFileName, IVsSolutionLoadManagerSupport pSLMgrSupport)
         {
             _loadManagerSupport = pSLMgrSupport;
@@ -435,119 +434,9 @@ namespace Kolos.SolutionLoadManager
             return VSConstants.S_OK;
         }
 
+        /// <inheritdoc/>
         public int OnDisconnect()
         {
-            return VSConstants.S_OK;
-        }
-
-        #endregion
-
-        #region IVsSolutionEvents Members
-
-        public int OnAfterCloseSolution(object pUnkReserved)
-        {
-            _rootProject = _currentProject = _lastProject = null;
-            _loadManagerMenuItem.Visible = false;
-            _activeProfileComboCommand.Enabled = false;
-
-            _projectNames.Clear();
-            _projectGuids.Clear();
-
-            return VSConstants.S_OK;
-        }
-
-        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
-        {
-            _loadManagerMenuItem.Visible = true;
-            _activeProfileComboCommand.Enabled = true;
-
-            return VSConstants.S_OK;
-        }
-
-        public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
-        {           
-            return VSConstants.S_OK;
-        }
-
-        public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnBeforeCloseSolution(object pUnkReserved)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnQueryCloseProject(IVsHierarchy pHierarchy, int fRemoving, ref int pfCancel)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnQueryCloseSolution(object pUnkReserved, ref int pfCancel)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnQueryUnloadProject(IVsHierarchy pRealHierarchy, ref int pfCancel)
-        {
-            return VSConstants.S_OK;
-        }
-
-        #endregion
-
-        #region IVsSolutionLoadEvents
-
-        public int OnAfterBackgroundSolutionLoadComplete()
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnAfterLoadProjectBatch(bool fIsBackgroundIdleBatch)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnBeforeBackgroundSolutionLoadBegins()
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnBeforeLoadProjectBatch(bool fIsBackgroundIdleBatch)
-        {
-            return VSConstants.S_OK;
-        }
-
-        public int OnBeforeOpenSolution(string pszSolutionFilename)
-        {
-            // Activate solution load manager
-            var solution = GetService(typeof(SVsSolution)) as IVsSolution;
-            if (null != solution)
-            {
-                object selectedLoadManager;
-                solution.GetProperty((int)__VSPROPID4.VSPROPID_ActiveSolutionLoadManager, out selectedLoadManager);
-                if (this != selectedLoadManager)
-                    solution.SetProperty((int)__VSPROPID4.VSPROPID_ActiveSolutionLoadManager, this);
-            }
-
-            _settingsManager = new XmlSettingsManager(pszSolutionFilename);
-            
-            return VSConstants.S_OK;
-        }
-
-        public int OnQueryBackgroundLoadProjectBatch(out bool pfShouldDelayLoadToNextIdle)
-        {
-            pfShouldDelayLoadToNextIdle = false;
             return VSConstants.S_OK;
         }
 

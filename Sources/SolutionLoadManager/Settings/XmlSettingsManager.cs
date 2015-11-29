@@ -49,9 +49,7 @@ namespace Kolos.SolutionLoadManager.Settings
 
         #region ISettingsManager Members
 
-        /// <summary>
-        /// Gets or sets active profile name.
-        /// </summary>
+        /// <inheritdoc/>
         public string ActiveProfile
         {
             get
@@ -67,19 +65,13 @@ namespace Kolos.SolutionLoadManager.Settings
             }
         }
 
-        /// <summary>
-        /// Gets list of available profile names.
-        /// </summary>
+        /// <inheritdoc/>
         public IEnumerable<string> Profiles
         {
             get { return _solutionLoadInfo.Profiles.Select(p => p.ProfileName); }
         }
 
-        /// <summary>
-        /// Adds new profile. Existing profile name can be specified to copy settings from.
-        /// </summary>
-        /// <param name="profile">Name of the new profile.</param>
-        /// <param name="copySettingsFrom">Existing profile name or empty/null string.</param>
+        /// <inheritdoc/>
         public void AddProfile(string profile, string copySettingsFrom)
         {
             if (_solutionLoadInfo.GetProfile(profile) != null)
@@ -108,10 +100,7 @@ namespace Kolos.SolutionLoadManager.Settings
             WriteSettings();
         }
 
-        /// <summary>
-        /// Removes existing profile.
-        /// </summary>
-        /// <param name="profile">Existing profile name.</param>
+        /// <inheritdoc/>
         public void RemoveProfile(string profile)
         {
             var sourceProfile = GetExistingProfile(profile);
@@ -119,11 +108,7 @@ namespace Kolos.SolutionLoadManager.Settings
             WriteSettings();
         }
 
-        /// <summary>
-        /// Renames existing profile to the new name.
-        /// </summary>
-        /// <param name="profile">Existing profile name.</param>
-        /// <param name="newProfile">New profile name.</param>
+        /// <inheritdoc/>
         public void RenameProfile(string profile, string newProfile)
         {
             var sourceProfile = GetExistingProfile(profile);
@@ -136,13 +121,7 @@ namespace Kolos.SolutionLoadManager.Settings
             WriteSettings();
         }
 
-        /// <summary>
-        /// Sets project load priority for specified profile.
-        /// </summary>
-        /// <param name="profile">Existing profile name.</param>
-        /// <param name="projectGuid">Project ID.</param>
-        /// <param name="priority">Load priority of the project.</param>
-        /// <returns>Load priority of the project.</returns>
+        /// <inheritdoc/>
         public void SetProjectLoadPriority(string profile, Guid projectGuid, LoadPriority priority)
         {
             var profileInfo = GetExistingProfile(profile);
@@ -158,12 +137,7 @@ namespace Kolos.SolutionLoadManager.Settings
             WriteSettings();
         }
 
-        /// <summary>
-        /// Gets project load priority for specified profile.
-        /// </summary>
-        /// <param name="profile">Existing profile name.</param>
-        /// <param name="projectGuid">Project ID.</param>
-        /// <returns>Load priority of the project.</returns>
+        /// <inheritdoc/>
         public LoadPriority GetProjectLoadPriority(string profile, Guid projectGuid)
         {
             var profileInfo = GetExistingProfile(profile);
@@ -212,60 +186,119 @@ namespace Kolos.SolutionLoadManager.Settings
 
         #region Serialization classes
 
+        /// <summary>
+        /// Information about project.
+        /// </summary>
         public class ProjectLoadInfo
         {
+            /// <summary>
+            /// Gets or sets project GUID.
+            /// </summary>
             public Guid ProjectGuid { get; set; }
+
+            /// <summary>
+            /// Gets or sets project load priority.
+            /// </summary>
             public LoadPriority LoadPriority { get; set; }
 
+            /// <summary>
+            /// Creates deep copy of the object.
+            /// </summary>
+            /// <returns>Deep copy of the object.</returns>
             public ProjectLoadInfo Clone()
             {
                 return (ProjectLoadInfo)MemberwiseClone();
             }
         }
 
+        /// <summary>
+        /// Solution profile information.
+        /// </summary>
         public class SolutionLoadProfile
         {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SolutionLoadProfile" /> class.
+            /// </summary>
             public SolutionLoadProfile() : this(null)
             { }
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SolutionLoadProfile" /> class using provided
+            /// profile name and list of project load priorities.
+            /// </summary>
+            /// <param name="profileName">Profile name.</param>
+            /// <param name="projects">List of project load priorities.</param>
             public SolutionLoadProfile(string profileName, IEnumerable<ProjectLoadInfo> projects = null)
             {
                 ProfileName = profileName;
                 Projects = new List<ProjectLoadInfo>(projects ?? Enumerable.Empty<ProjectLoadInfo>());
             }
 
+            /// <summary>
+            /// Gets or sets profile name.
+            /// </summary>
             public string ProfileName { get; set; }
 
+            /// <summary>
+            /// Gets list of project load priorities.
+            /// </summary>
             public List<ProjectLoadInfo> Projects { get; }
 
+            /// <summary>
+            /// Gets project using provided project GUID.
+            /// </summary>
+            /// <param name="projectGuid">Project GUID to look for.</param>
+            /// <returns>Project load priority informaiton if found; null otherwise.</returns>
             public ProjectLoadInfo GetProject(Guid projectGuid)
             {
                 return Projects.FirstOrDefault(p => p.ProjectGuid.Equals(projectGuid));
             }
 
+            /// <summary>
+            /// Creates deep copy of the object.
+            /// </summary>
+            /// <returns>Deep copy of the object.</returns>
             public SolutionLoadProfile Clone()
             {
                 return new SolutionLoadProfile(ProfileName, Projects.Select(p => p.Clone()));
             }
         }
 
+        /// <summary>
+        /// Information about solution load priorities.
+        /// </summary>
         public class SolutionLoadInfo
         {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SolutionLoadInfo" /> class.
+            /// </summary>
             public SolutionLoadInfo()
             {
                 Profiles = new List<SolutionLoadProfile>();
             }
 
+            /// <summary>
+            /// Gets or sets the name of active solution profile. 
+            /// </summary>
             public string ActiveProfileName { get; set; }
+
+            /// <summary>
+            /// Gets or sets list of defines profiles.
+            /// </summary>
             public List<SolutionLoadProfile> Profiles { get; set; }
 
+            /// <summary>
+            /// Gets profile by provided profile name.
+            /// </summary>
+            /// <param name="profileName">Profile name to look for.</param>
+            /// <returns>Solution profile if found; null otherwise.</returns>
             public SolutionLoadProfile GetProfile(string profileName)
             {
                 return Profiles.FirstOrDefault(p => p.ProfileName.Equals(profileName));
             }
         }
 
-        static class SolutionLoadInfoSerializer
+        private static class SolutionLoadInfoSerializer
         {
             public static void Serialize(SolutionLoadInfo solutionLoadInfo, string filePath)
             {

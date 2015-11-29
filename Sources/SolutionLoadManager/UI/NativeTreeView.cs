@@ -8,6 +8,7 @@ namespace Kolos.SolutionLoadManager.UI
     /// </summary>
     public class NativeTreeView : TreeView
     {
+        /// <inheritdoc/>
         protected override void CreateHandle()
         {
             base.CreateHandle();
