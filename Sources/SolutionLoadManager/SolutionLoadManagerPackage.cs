@@ -78,13 +78,16 @@ namespace Kolos.SolutionLoadManager
             {
                 // Create the command for the menu item.
                 var menuCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManager);
-                _loadManagerMenuItem = new MenuCommand(MenuItemCallback, menuCommandId);
+                _loadManagerMenuItem = new MenuCommand(OpenSettingsMenuItemCallback, menuCommandId);
                 _loadManagerMenuItem.Visible = false;
                 mcs.AddCommand(_loadManagerMenuItem);
 
                 // Create the command for the context menu item.
-                var contextMenuCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManagerContext);
-                mcs.AddCommand(new MenuCommand(MenuItemCallback, contextMenuCommandId));
+                var settingsContextMenuCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManagerContext);
+                mcs.AddCommand(new MenuCommand(OpenSettingsMenuItemCallback, settingsContextMenuCommandId));
+
+                var reloadContextMenuCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidReloadSolutionContext);
+                mcs.AddCommand(new MenuCommand(ReloadSolutionMenuItemCallback, reloadContextMenuCommandId));
             }  
           
             // Subscribe to solution events
@@ -139,11 +142,11 @@ namespace Kolos.SolutionLoadManager
         }
 
         /// <summary>
-        /// This function is the callback used to execute a command when the a menu item is clicked.
+        /// This function is the callback used to execute a command when "Settings..." context menu item is clicked.
         /// See the Initialize method to see how the menu item is associated to this function using
         /// the OleMenuCommandService service and the MenuCommand class.
         /// </summary>
-        private void MenuItemCallback(object sender, EventArgs e)
+        private void OpenSettingsMenuItemCallback(object sender, EventArgs e)
         {            
             var solution = UpdateEntireSolution();
 
@@ -151,6 +154,16 @@ namespace Kolos.SolutionLoadManager
             form.PriorityChanged += (s, args) => UpdateProjectLoadPriority(args.Project);
             form.ReloadRequested += (s, args) => { ReloadSolution(); form.RootProject = UpdateEntireSolution(); };
             form.ShowDialog();
+        }
+
+        /// <summary>
+        /// This function is the callback used to execute a command when "Reload Solution" menu item is clicked.
+        /// See the Initialize method to see how the menu item is associated to this function using
+        /// the OleMenuCommandService service and the MenuCommand class.
+        /// </summary>
+        private void ReloadSolutionMenuItemCallback(object sender, EventArgs e)
+        {
+            ReloadSolution();
         }
 
         #region Enumerate Projects Hierarchy

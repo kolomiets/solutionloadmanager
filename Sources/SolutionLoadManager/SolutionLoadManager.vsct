@@ -38,7 +38,7 @@
           <ButtonText>Solution Load Manager</ButtonText>
           <CommandName>Solution Load Manager</CommandName>
         </Strings>
-      </Menu>
+      </Menu>              
     </Menus>
     
     <!-- In this section you can define new menu groups. A menu group is a container for 
@@ -75,6 +75,7 @@
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node or set it to <Icon guid="guidOfficeIcon" id="msotcidNoIcon" /> -->
 
+      <!-- Tools Menu Commands -->
       <Button guid="guidSolutionLoadManagerCmdSet" id="cmdidSolutionLoadManager" priority="0x0100" type="Button">
         <Parent guid="guidSolutionLoadManagerCmdSet" id="ToolsMenuGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -85,6 +86,7 @@
         </Strings>
       </Button>
 
+      <!-- Solution Context Menu Commands -->
       <Button guid="guidSolutionLoadManagerCmdSet" id="cmdidSolutionLoadManagerContext" priority="0x0100" type="Button">
         <Parent guid="guidSolutionLoadManagerCmdSet" id="SolutionContextMenuGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -92,6 +94,15 @@
         <Strings>
           <CommandName>cmdidSolutionLoadManagerContext</CommandName>
           <ButtonText>Settings...</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidSolutionLoadManagerCmdSet" id="cmdidReloadSolutionContext" priority="0x0101" type="Button">
+        <Parent guid="guidSolutionLoadManagerCmdSet" id="SolutionContextMenuGroup" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <CommandName>cmdidReloadSolutionContext</CommandName>
+          <ButtonText>Reload Solution</ButtonText>
         </Strings>
       </Button>
 
@@ -125,6 +136,7 @@
       
       <IDSymbol name="cmdidSolutionLoadManager" value="0x0100" />
       <IDSymbol name="cmdidSolutionLoadManagerContext" value="0x0101" />
+      <IDSymbol name="cmdidReloadSolutionContext" value="0x0102" />
 
     </GuidSymbol>
     
