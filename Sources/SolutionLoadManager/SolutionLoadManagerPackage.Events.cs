@@ -12,8 +12,10 @@ namespace Kolos.SolutionLoadManager
         public int OnAfterCloseSolution(object pUnkReserved)
         {
             _rootProject = _currentProject = _lastProject = null;
-            _loadManagerMenuItem.Visible = false;
-            _activeProfileComboCommand.Enabled = false;
+
+			// Tools menu
+            _settingsToolsButton.Visible = false;
+            EnableToolbarControls(false);
 
             _projectNames.Clear();
             _projectGuids.Clear();
@@ -24,8 +26,9 @@ namespace Kolos.SolutionLoadManager
         /// <inheritdoc/>
         public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
         {
-            _loadManagerMenuItem.Visible = true;
-            _activeProfileComboCommand.Enabled = true;
+			// Tools menu
+            _settingsToolsButton.Visible = true;		
+			EnableToolbarControls(true);
 
             return VSConstants.S_OK;
         }

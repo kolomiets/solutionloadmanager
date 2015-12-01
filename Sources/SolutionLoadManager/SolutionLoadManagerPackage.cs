@@ -39,8 +39,10 @@ namespace Kolos.SolutionLoadManager
         private readonly HashSet<Guid> _projectGuids = new HashSet<Guid>();
         private readonly Dictionary<string, Guid> _projectNames = new Dictionary<string, Guid>();
 
-        private MenuCommand _loadManagerMenuItem;
-        private OleMenuCommand _activeProfileComboCommand;
+        private MenuCommand _settingsToolsButton;
+        private MenuCommand _activeProfileCombo;
+        private MenuCommand _settingsToolbarButton;
+        private MenuCommand _reloadToolbarButton;
 
         private uint _solutionEventsCoockie;
         private ProjectInfo _rootProject;
@@ -79,9 +81,9 @@ namespace Kolos.SolutionLoadManager
             {
                 // Create the command for the menu item.
                 var menuCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManager);
-                _loadManagerMenuItem = new MenuCommand(OnOpenSettingsMenuItem, menuCommandId);
-                _loadManagerMenuItem.Visible = false;
-                mcs.AddCommand(_loadManagerMenuItem);
+                _settingsToolsButton = new MenuCommand(OnOpenSettingsMenuItem, menuCommandId);
+                _settingsToolsButton.Visible = false;
+                mcs.AddCommand(_settingsToolsButton);
 
                 // Create commands for the context menu.
                 var settingsContextMenuCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManagerContext);
@@ -92,17 +94,26 @@ namespace Kolos.SolutionLoadManager
                 
                 // Initialize Active Profile combo.          
                 var activeProfileComboCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidActiveProfileCombo);
-                _activeProfileComboCommand = new OleMenuCommand(OnMenuMyDropDownCombo, activeProfileComboCommandId);
-                _activeProfileComboCommand.Enabled = false;
-                mcs.AddCommand(_activeProfileComboCommand);
+                _activeProfileCombo = new OleMenuCommand(OnMenuMyDropDownCombo, activeProfileComboCommandId);
+                mcs.AddCommand(_activeProfileCombo);
 
                 // Initialize the "GetList" command for Active Profile combo.
                 var activeProfileComboGetListCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidActiveProfileComboGetList);
                 var activeProfileComboGetListCommand = new OleMenuCommand(OnMenuMyDropDownComboGetList, activeProfileComboGetListCommandId);
                 mcs.AddCommand(activeProfileComboGetListCommand);
+               
+                var settingsToolbarCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidSolutionLoadManagerToolbar);
+                _settingsToolbarButton = new MenuCommand(OnOpenSettingsMenuItem, settingsToolbarCommandId);
+                mcs.AddCommand(_settingsToolbarButton);
 
-            }  
-          
+                var reloadToobarCommandId = new CommandID(GuidList.guidSolutionLoadManagerCmdSet, (int)PkgCmdIDList.cmdidReloadSolutionToolbar);
+                _reloadToolbarButton = new MenuCommand(OnReloadSolutionMenuItem, reloadToobarCommandId);
+                mcs.AddCommand(_reloadToolbarButton);
+
+                // Disable button by default
+                EnableToolbarControls(false);              
+            }
+
             // Subscribe to solution events
             var solution = GetService(typeof(SVsSolution)) as IVsSolution;
             if (null != solution)
@@ -413,6 +424,11 @@ namespace Kolos.SolutionLoadManager
             if (pvar is ushort) return (uint)(ushort)pvar;
             if (pvar is long) return (uint)(long)pvar;
             return VSConstants.VSITEMID_NIL;
+        }
+
+        private void EnableToolbarControls(bool enabled)
+        {
+            _activeProfileCombo.Enabled = _settingsToolbarButton.Enabled = _reloadToolbarButton.Enabled = enabled;
         }
 
         #endregion

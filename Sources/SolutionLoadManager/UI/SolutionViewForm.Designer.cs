@@ -381,6 +381,7 @@
             this.Controls.Add(this.reloadButton);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.profilesComboBox);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(651, 800);
             this.MinimizeBox = false;

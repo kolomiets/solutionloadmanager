@@ -16,5 +16,8 @@ namespace Kolos.SolutionLoadManager
         // Toolbar Commands
         public const int cmdidActiveProfileCombo = 0x110;
         public const int cmdidActiveProfileComboGetList = 0x111;
+
+        public const int cmdidSolutionLoadManagerToolbar = 0x0112;
+        public const int cmdidReloadSolutionToolbar = 0x0113;
     };
 }
