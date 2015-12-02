@@ -33,6 +33,19 @@ Reload Solution button allows reload solution immediately to apply all changed p
 
 ## Version Log
 
+### Version 0.7
+New Visual Studio toolbar was added with the following controls:
+
+- Active profile combo box allows to quickly switch solution configuration between defined profiles
+- Settings button shows main Solution Load Manager configuration window
+- Reload Solution button reloads VS solution according to currently selected profile
+
+### Version 0.6.1
+Fixes compatibility with Visual Studio 2010
+
+### Version 0.6
+Fix of a small bug with correct initialization of project priorities during the first load of solution when .slm file with settings is present.
+
 ### Version 0.5
 Released on October 16, 2015
 
